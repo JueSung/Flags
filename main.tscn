@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3 uid="uid://cy7drhhfxj4dy"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_hlv66"]
+[ext_resource type="PackedScene" uid="uid://dw8sv3acmduiy" path="res://lobby.tscn" id="2_fi7l2"]
+[ext_resource type="PackedScene" uid="uid://c1uet2vjk3yf7" path="res://client.tscn" id="3_qptoc"]
+[ext_resource type="Script" path="res://HUD.gd" id="4_bygh4"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_hlv66")
+
+[node name="Lobby" parent="." instance=ExtResource("2_fi7l2")]
+
+[node name="Client" parent="." instance=ExtResource("3_qptoc")]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("4_bygh4")
+
+[node name="Title" type="Label" parent="HUD"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Host_Game" type="Button" parent="HUD"]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Host Game"
+
+[node name="Join_Game" type="Button" parent="HUD"]
+offset_left = 100.0
+offset_right = 187.0
+offset_bottom = 31.0
+text = "Join Game"
+
+[node name="Start_Game" type="Button" parent="HUD"]
+offset_top = 50.0
+offset_right = 96.0
+offset_bottom = 81.0
+text = "Start Game"
+
+[node name="Back_to_title" type="Button" parent="HUD"]
+offset_left = 100.0
+offset_top = 50.0
+offset_right = 108.0
+offset_bottom = 58.0
+text = "Back"
+
+[connection signal="player_connected" from="Lobby" to="." method="add_player"]
+[connection signal="player_disconnected" from="Lobby" to="." method="player_disconnected"]
+[connection signal="server_disconnected" from="Lobby" to="." method="server_disconnected"]
+[connection signal="set_ID" from="Lobby" to="." method="set_ID"]
+[connection signal="send_to_host" from="Client" to="." method="send_inputs_to_main"]
+[connection signal="pressed" from="HUD/Host_Game" to="." method="host_game"]
+[connection signal="pressed" from="HUD/Join_Game" to="." method="join_game"]
+[connection signal="pressed" from="HUD/Start_Game" to="." method="start_game"]
+[connection signal="pressed" from="HUD/Back_to_title" to="." method="un_host_join_game"]
