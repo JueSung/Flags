@@ -1,13 +1,58 @@
-[gd_scene load_steps=2 format=3 uid="uid://dt4ref40n7fcg"]
+[gd_scene load_steps=6 format=3 uid="uid://dt4ref40n7fcg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3hu0v"]
 size = Vector2(640, 10)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tcqny"]
+size = Vector2(20, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u3scv"]
+size = Vector2(20, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_acdjw"]
+size = Vector2(20, 360)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0ut2c"]
+size = Vector2(20, 360)
+
 [node name="Map1" type="Node2D"]
 
 [node name="Floor" type="RigidBody2D" parent="."]
+position = Vector2(320, 360)
 gravity_scale = 0.0
+freeze = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
-position = Vector2(320, 360)
 shape = SubResource("RectangleShape2D_3hu0v")
+
+[node name="LObstacle" type="RigidBody2D" parent="."]
+position = Vector2(100, 280)
+gravity_scale = 0.0
+freeze = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LObstacle"]
+shape = SubResource("RectangleShape2D_tcqny")
+
+[node name="RObstacle" type="RigidBody2D" parent="."]
+position = Vector2(540, 280)
+gravity_scale = 0.0
+freeze = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RObstacle"]
+shape = SubResource("RectangleShape2D_u3scv")
+
+[node name="LBorder" type="RigidBody2D" parent="."]
+position = Vector2(0, 175)
+gravity_scale = 0.0
+freeze = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LBorder"]
+shape = SubResource("RectangleShape2D_acdjw")
+
+[node name="RBorder" type="RigidBody2D" parent="."]
+position = Vector2(640, 175)
+gravity_scale = 0.0
+freeze = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RBorder"]
+shape = SubResource("RectangleShape2D_0ut2c")

@@ -1,11 +1,11 @@
 extends CharacterBody2D
 var my_ID
 
-const SPEED = 300.0
-const JUMP_VELOCITY = -400.0
+const SPEED = 140.0
+const JUMP_VELOCITY = -200.0
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var gravity = 490
 
 #user inputs
 var left = false
@@ -23,6 +23,12 @@ func _ready():
 	player_data = {
 		"position" : position
 	}
+	if my_ID == 1:
+		var platform = preload("res://platform.tscn").instantiate()
+		platform.get_node("CollisionShape2D").shape.extents = Vector2(50,50)
+		get_parent().add_child(platform)
+		platform.position = Vector2(200, 50)
+		platform.linear_velocity = Vector2(600,0)
 
 
 func _physics_process(delta):

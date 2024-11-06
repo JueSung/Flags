@@ -89,7 +89,8 @@ func start_game():
 		#create players
 		var player_instance = preload("res://player.tscn").instantiate()
 		player_instance.my_ID = peer_id
-		player_instance.position.x += 20 * count
+		player_instance.position.x += 20 * count + 20
+		player_instance.position.y = 20
 		#adding child makes _ready() run so intialize other vars before
 		player_objects[peer_id] = player_instance
 	
