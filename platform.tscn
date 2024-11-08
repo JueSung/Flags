@@ -1,10 +1,16 @@
 [gd_scene load_steps=2 format=3 uid="uid://cylnctchjk3na"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_vs8d3"]
+[ext_resource type="Script" path="res://platform.gd" id="1_ly6i1"]
 
 [node name="Platform" type="RigidBody2D"]
 gravity_scale = 0.0
 linear_damp = 6.0
+script = ExtResource("1_ly6i1")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_vs8d3")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)

@@ -1,4 +1,6 @@
 extends CharacterBody2D
+class_name Player
+
 var my_ID
 
 const SPEED = 140.0
@@ -23,12 +25,6 @@ func _ready():
 	player_data = {
 		"position" : position
 	}
-	if my_ID == 1:
-		var platform = preload("res://platform.tscn").instantiate()
-		platform.get_node("CollisionShape2D").shape.extents = Vector2(50,50)
-		get_parent().add_child(platform)
-		platform.position = Vector2(200, 50)
-		platform.linear_velocity = Vector2(600,0)
 
 
 func _physics_process(delta):

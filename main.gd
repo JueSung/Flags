@@ -36,12 +36,8 @@ func un_host_join_game():
 
 #recieved from lobby when player joins
 func add_player(peer_id, _player_info): #idk player_info is unused
-	if my_ID == 1:
-		print(peer_id)
 		
 	players_IDs.append(peer_id)
-	if my_ID == 1:
-		print(players_IDs)
 
 #signal recieved from lobby if any peer disconnects
 func player_disconnected(peer_id):
@@ -55,7 +51,7 @@ func server_disconnected():
 #from client node, sending inputs from client
 #sending to server
 func send_inputs_to_main(packet):
-	if my_ID != 1:
+	if not $Lobby.multiplayer.is_server():
 		#
 		rpc_id(1, "recieve_client_inputs",my_ID, packet)
 	else:

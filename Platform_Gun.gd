@@ -1,12 +1,13 @@
 extends Area2D
+class_name Platform_Gun
 
 var left_charging = false
 var right_charging = false
 
 var left_length = 20 #capsule height default 20, radius 10, changing height
 var left_length_default = 20
-var right_length = 20 #figure out CHANGE
-var right_length_default = 20
+var right_speed = 80 #figure out CHANGE
+var right_speed_default = 20
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -44,19 +45,20 @@ func _process(delta):
 	if get_parent().right_click:
 		right_charging = true
 		#charge_right stuff
-		right_length += 40 * delta
+		if right_speed <= 480 * 15: #15 seconds max charge
+			right_speed += 480 * delta
 		
 	elif right_charging:
 		right_charging = false
 		#discharge
 		var platform = preload("res://platform.tscn").instantiate()
-		platform.get_node("CollisionShape2D").shape = RectangleShape2D.new()
-		platform.get_node("CollisionShape2D").shape.extents = Vector2(right_length, 10)
+		platform.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
+		platform.get_node("Area2D").get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
 		platform.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
-		platform.linear_velocity = 600 * Vector2(cos(rotation),sin(rotation)).normalized()
+		platform.linear_velocity = right_speed * Vector2(cos(rotation),sin(rotation)).normalized()
 		if get_parent().mouse_position.x - global_position.x != 0:
 			platform.rotation = rotation
 		
 		get_parent().get_parent().add_child(platform)
 		
-		right_length = right_length_default
+		right_speed = right_speed_default
