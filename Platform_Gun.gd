@@ -4,8 +4,8 @@ class_name Platform_Gun
 var left_charging = false
 var right_charging = false
 
-var left_length = 20 #capsule height default 20, radius 10, changing height
-var left_length_default = 20
+var left_length = 5 #capsule height default 20, radius 10, changing height
+var left_length_default = 5
 var right_speed = 80 #figure out CHANGE
 var right_speed_default = 20
 
@@ -25,16 +25,16 @@ func _process(delta):
 	if get_parent().left_click:
 		left_charging = true
 		#charge stuff
-		left_length += 40 * delta
+		left_length += 20 * delta
 		
 	elif left_charging:
 		left_charging = false
 		#discharge
 		var laser = preload("res://laser.tscn").instantiate()
-		laser.get_node("CollisionShape2D").shape = CapsuleShape2D.new()
-		laser.get_node("CollisionShape2D").shape.height = left_length
+		laser.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-10,-10-left_length),Vector2(10,-10-left_length),\
+		Vector2(10,10+left_length),Vector2(-10,10+left_length)])
 		laser.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
-		laser.linear_velocity = 600 * Vector2(cos(rotation),sin(rotation)).normalized()
+		laser.velocity = 600 * Vector2(cos(rotation),sin(rotation)).normalized()
 		if get_parent().mouse_position.x - global_position.x != 0:
 			laser.rotation = rotation
 		
