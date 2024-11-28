@@ -18,9 +18,14 @@ func host_game():
 	$Lobby.create_game()
 	$HUD.host_game()
 
+#used first to get ip page
 func join_game():
-	$Lobby.join_game()
 	$HUD.join_game()
+
+#second join game press to join game for real cuz have ip now
+func join_game2():
+	$Lobby.join_game()
+	$HUD.join_game2()
 
 #undos host_game and join_game if you were to go back to title screen
 func un_host_join_game():

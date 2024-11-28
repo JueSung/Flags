@@ -34,7 +34,7 @@ func _process(delta):
 		laser.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-10,-10-left_length),Vector2(10,-10-left_length),\
 		Vector2(10,10+left_length),Vector2(-10,10+left_length)])
 		laser.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
-		laser.velocity = 600 * Vector2(cos(rotation),sin(rotation)).normalized()
+		laser.velocity = Vector2(0,0)#600 * Vector2(cos(rotation),sin(rotation)).normalized()
 		if get_parent().mouse_position.x - global_position.x != 0:
 			laser.rotation = rotation
 		
@@ -52,8 +52,8 @@ func _process(delta):
 		right_charging = false
 		#discharge
 		var platform = preload("res://platform.tscn").instantiate()
-		platform.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
-		platform.get_node("Area2D").get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
+		#platform.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
+		#platform.get_node("Area2D").get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
 		platform.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
 		platform.linear_velocity = right_speed * Vector2(cos(rotation),sin(rotation)).normalized()
 		if get_parent().mouse_position.x - global_position.x != 0:

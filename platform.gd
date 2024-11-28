@@ -8,7 +8,22 @@ var extra_area_polygons2 = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if get_parent().my_ID == 1:
-		$Area2D.connect("area_entered", on_area_entered)
+		var instance = Area2D.new()
+		
+		extra_area_polygons2.append(instance)
+		add_child(instance)
+		
+		
+		var instance2 = CollisionPolygon2D.new()
+		instance2.polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
+		extra_polygons2.append(instance2)
+		instance.add_child(instance2)
+		instance.connect("area_entered", on_area_entered)
+		
+		instance2 = CollisionPolygon2D.new()
+		instance2.polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
+		extra_polygons.append(instance2)
+		add_child(instance2)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -19,10 +34,11 @@ func _process(delta):
 func on_area_entered(body):
 	if body.get_parent() is Platform and body.get_parent() != self:
 		print("body entered ::", self,"::", body.get_parent())
+		print(body.get_parent().extra_area_polygons2)
 		if str(self) > str(body.get_parent()):
 			#convert collisionpolygon verticies to global verticies
-
-			var p1 = []
+			print("ran")
+			"""var p1 = []
 			for i in range(len(get_node("CollisionPolygon2D").polygon)):
 				var rot = atan2(get_node("CollisionPolygon2D").polygon[i].y, get_node("CollisionPolygon2D").polygon[i].x)
 				var mag = sqrt(get_node("CollisionPolygon2D").polygon[i].x ** 2 + get_node("CollisionPolygon2D").polygon[i].y ** 2)
@@ -31,7 +47,7 @@ func on_area_entered(body):
 			for i in range(len(body.get_node("CollisionPolygon2D").polygon)):
 				var rot = atan2(body.get_node("CollisionPolygon2D").polygon[i].y, body.get_node("CollisionPolygon2D").polygon[i].x)
 				var mag = sqrt(body.get_node("CollisionPolygon2D").polygon[i].x ** 2 + body.get_node("CollisionPolygon2D").polygon[i].y ** 2)
-				p2.append(mag * Vector2(cos(rot + body.get_parent().rotation),sin(rot+body.get_parent().rotation)) + body.get_parent().global_position)
+				p2.append(mag * Vector2(cos(rot + body.get_parent().rotation),sin(rot+body.get_parent().rotation)) + body.get_parent().global_position)"""
 
 			var p1_extras = []
 			for i in range(len(extra_polygons)):
@@ -53,14 +69,14 @@ func on_area_entered(body):
 			#get average point of x y values of all verticies for new center
 			var average_position = Vector2(0,0)
 			var count = 0
-			for i in range(len(p1)):
+			"""for i in range(len(p1)):
 				average_position.x += p1[i].x
 				average_position.y += p1[i].y
 				count += 1
 			for i in range(len(p2)):
 				average_position.x += p1[i].x
 				average_position.y += p2[i].y
-				count += 1
+				count += 1"""
 			for i in range(len(p1_extras)):
 				for j in range(len(p1_extras[i])):
 					average_position.x += p1_extras[i][j].x
@@ -76,10 +92,10 @@ func on_area_entered(body):
 			global_position = average_position
 			
 			#convert to local coords with new rotation 0
-			for i in range(len(p1)):
+			"""for i in range(len(p1)):
 				p1[i] -= global_position
 			for i in range(len(p2)):
-				p2[i] -= global_position
+				p2[i] -= global_position"""
 			for i in range(len(p1_extras)):
 				for j in range(len(p1_extras[i])):
 					p1_extras[i][j] -= global_position
@@ -91,36 +107,36 @@ func on_area_entered(body):
 			
 			
 			rotation = 0
-			get_node("CollisionPolygon2D").polygon = p1
-			get_node("Area2D/CollisionPolygon2D").polygon = p1
+			#get_node("CollisionPolygon2D").polygon = p1
+			#get_node("Area2D/CollisionPolygon2D").polygon = p1
 			
 			for i in range(len(extra_polygons)):
 				extra_polygons[i].polygon = p1_extras[i]
 				extra_polygons2[i].polygon = p1_extras[i]
 			
-			var instance = CollisionPolygon2D.new()
-			instance.polygon = p2
-			add_child(instance)
-			extra_polygons.append(instance)
+			#var instance = CollisionPolygon2D.new()
+			#instance.polygon = p2
+			#add_child(instance)
+			#extra_polygons.append(instance)
 			
-			instance = CollisionPolygon2D.new()
-			instance.polygon = p2
-			var area_instance = Area2D.new()
-			area_instance.add_child(instance)
-			add_child(area_instance)
-			extra_polygons2.append(instance)
-			extra_area_polygons2.append(area_instance)
-			print('ran')
+			#instance = CollisionPolygon2D.new()
+			#instance.polygon = p2
+			#var area_instance = Area2D.new()
+			#area_instance.add_child(instance)
+			#add_child(area_instance)
+			#extra_polygons2.append(instance)
+			#extra_area_polygons2.append(area_instance)
 			
 			for i in range(len(p2_extras)):
-				instance = CollisionPolygon2D.new()
+				var instance = CollisionPolygon2D.new()
 				instance.polygon = p2_extras[i]
 				add_child(instance)
 				extra_polygons.append(instance)
 				
 				instance = CollisionPolygon2D.new()
 				instance.polygon = p2_extras[i]
-				area_instance = Area2D.new()
+				var area_instance = Area2D.new()
+				area_instance.connect("area_entered", on_area_entered)
 				area_instance.add_child(instance)
 				add_child(area_instance)
 				extra_polygons2.append(instance)

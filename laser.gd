@@ -10,11 +10,6 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	position += velocity * delta
-	print("pos", position)
-	print("rot", rotation)
-	print("colpos", get_node("CollisionPolygon2D").polygon)
-	for i in range(len(get_node("CollisionPolygon2D").polygon)):
-		print(to_global(get_node("CollisionPolygon2D").polygon[i]))
 
 
 
@@ -31,30 +26,34 @@ func area_entered(area):
 			p1.append(to_global(get_node("CollisionPolygon2D").polygon[i]))
 		var p2 = []
 		for i in range(len(area_collision_node.polygon)):
-			p2.append(to_global(area_collision_node.polygon[i]))
+			p2.append(area.get_parent().to_global(area_collision_node.polygon[i]))
+		#print("##", p2[0])
 		
 		print("p1", p1)
 		print("p2", p2)
 		print("clip p1,p2 ",Geometry2D.clip_polygons(p1,p2))
 		print("clip p2,p1 ",Geometry2D.clip_polygons(p2,p1))
+		get_tree().paused = true
 		
 		rotation = 0
 		area.get_parent().rotation = 0
 		
-		get_node("CollisionPolygon2D").polygon = Geometry2D.clip_polygons(p1,p2)[0]
-		print("HEEHOO", get_node("CollisionPolygon2D").polygon, ", ", global_position)
-		global_position = Vector2(0,0)
-		area_collision_node.polygon = Geometry2D.clip_polygons(p2,p1)[0]
+		var p3 = Geometry2D.clip_polygons(p1,p2)[0]
+		#global_position = Vector2(0,0)
+		var p4 = Geometry2D.clip_polygons(p2,p1)[0]
 		for i in range(len(get_node("CollisionPolygon2D").polygon)):
-			get_node("CollisionPolygon2D").polygon[i] - global_position
-		print("HEE", global_position)
+			get_node("CollisionPolygon2D").polygon[i] = to_local(p3[i])
+		#if laser is has less than 3 verticies, delete bc no longer a 2d shape.
+		if len(get_node("CollisionPolygon2D").polygon) < 3:
+			queue_free()
+		#---------
+		
 		for i in range(len(area_collision_node.polygon)):
-			area_collision_node.polygon[i] - area.get_parent().global_position
-		if  (area.get_parent().extra_area_polygons2.find(area) == -1):
-			area.get_parent().get_node("CollisionPolygon2D").polygon = area_collision_node.polygon
-		else:
+			area_collision_node.polygon[i] = area.get_parent().to_local(p4[i])
 			area.get_parent().extra_polygons[area.get_parent().extra_area_polygons2.find(area)].polygon = area_collision_node.polygon
-		velocity = Vector2(0,0)
-		print(get_node("CollisionPolygon2D").polygon)
-		print(rotation)
-		print(position)
+		#if platform has less than 3 verticies, delete bc no longer a 2d shape
+		if len(area_collision_node.polygon) < 3:
+			print("EYO")
+		
+		#velocity = Vector2(0,0)
+		#print("##",area_collision_node.polygon[0])
