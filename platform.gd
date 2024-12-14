@@ -8,7 +8,7 @@ var extra_area_polygons2 = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if get_parent().my_ID == 1:
-		var instance = Area2D.new()
+		"""var instance = Area2D.new()
 		
 		extra_area_polygons2.append(instance)
 		add_child(instance)
@@ -23,7 +23,7 @@ func _ready():
 		instance2 = CollisionPolygon2D.new()
 		instance2.polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
 		extra_polygons.append(instance2)
-		add_child(instance2)
+		add_child(instance2)"""
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -34,11 +34,98 @@ func _process(delta):
 func on_area_entered(body):
 	if body.get_parent() is Platform and body.get_parent() != self:
 		print("body entered ::", self,"::", body.get_parent())
-		print(body.get_parent().extra_area_polygons2)
 		if str(self) > str(body.get_parent()):
-			#convert collisionpolygon verticies to global verticies
-			print("ran")
-			"""var p1 = []
+			 #convert collisionpolygon verticies to global verticies
+			var p1 = []
+			for i in range(len($CollisionPolygon2D.polygon)):
+				p1.append(to_global($CollisionPolygon2D.polygon[i]))
+			var p2 = []
+			for i in range(len(body.get_node("CollisionPolygon2D").polygon)):
+				p2.append(body.get_parent().to_global(body.get_node("CollisionPolygon2D").polygon[i]))
+			
+			#combine
+			var p3 = Geometry2D.merge_polygons(p1,p2)
+			var outer = []
+			var inner = []
+			for i in range(len(p3)):
+				if not Geometry2D.is_polygon_clockwise(p3[i]):
+					outer = p3[i]
+				else:
+					inner.append(p3[i])
+			
+			#for each inner, finds a point where a vertex on the outer polygon can connect to a vertex of the inner polygon with as straight line without crossing any polygon borders
+			#then the inner polygon array gets inserted between two of the same vertex on the outer polygon
+			var points = []
+			for inner_polygon in inner:
+				#points = [[inner vertx index, outer vertex index]]
+				points.append(get_connection(inner, outer, inner_polygon))
+			
+			
+			var p4 = []
+			for i in range(len(outer)):
+				p4.append(outer[i])
+				for j in range(len(points)):
+					if i == points[j][1]:
+						for k in range(len(inner[j])+1):
+							p4.append(inner[j][(points[j][0]+k)%len(inner[j])])
+						p4.append(outer[i])
+					
+		
+			print(len(inner))
+			
+			#recalculate center?
+			
+			
+			#convert to local
+			for i in range(len(p4)):
+				p4[i] = to_local(p4[i])
+			#for i in range(len(p3)):
+				#for j in range(len(p3[i])+1):
+					#p4.append(to_local(p3[i][j%len(p3[i])]))
+			
+			$CollisionPolygon2D.polygon = p4
+			$Area2D.get_node("CollisionPolygon2D").polygon = p4
+			
+			body.get_parent().queue_free()
+			
+			
+			
+
+
+func get_connection(inner, outer, inner_poly):
+	var works_inner_vertex
+	var works_outer_vertex
+	for k in range(len(outer)):
+		for l in range(len(inner_poly)):
+			#iterate through polygon segments to check if they intersect
+			var flag = true
+			for i in range(len(outer)):
+				print(outer[k])
+				print(inner_poly[l])
+				print(outer[i])
+				print(outer[(i+1)%len(outer)])
+				var intersection = Geometry2D.segment_intersects_segment(outer[k], inner_poly[l], outer[i], outer[(i+1)%len(outer)])
+				if intersection != null and intersection != outer[k]:
+					flag = false
+					break;
+			if flag:
+				for the_inner in inner:
+					for i in range(len(the_inner)):
+						var intersection = Geometry2D.segment_intersects_segment(outer[k], inner_poly[l], the_inner[i], the_inner[(i+1)%len(the_inner)])
+						if intersection != null and intersection != inner_poly[l]:
+							flag = false
+							break;
+					if not flag:
+						break;
+			if flag: #found good point
+				return [l, k]
+			
+			
+func not_using_rn():
+			var body # to prevent errors
+			
+			
+			var p1 = []
 			for i in range(len(get_node("CollisionPolygon2D").polygon)):
 				var rot = atan2(get_node("CollisionPolygon2D").polygon[i].y, get_node("CollisionPolygon2D").polygon[i].x)
 				var mag = sqrt(get_node("CollisionPolygon2D").polygon[i].x ** 2 + get_node("CollisionPolygon2D").polygon[i].y ** 2)
@@ -47,7 +134,7 @@ func on_area_entered(body):
 			for i in range(len(body.get_node("CollisionPolygon2D").polygon)):
 				var rot = atan2(body.get_node("CollisionPolygon2D").polygon[i].y, body.get_node("CollisionPolygon2D").polygon[i].x)
 				var mag = sqrt(body.get_node("CollisionPolygon2D").polygon[i].x ** 2 + body.get_node("CollisionPolygon2D").polygon[i].y ** 2)
-				p2.append(mag * Vector2(cos(rot + body.get_parent().rotation),sin(rot+body.get_parent().rotation)) + body.get_parent().global_position)"""
+				p2.append(mag * Vector2(cos(rot + body.get_parent().rotation),sin(rot+body.get_parent().rotation)) + body.get_parent().global_position)
 
 			var p1_extras = []
 			for i in range(len(extra_polygons)):
@@ -145,7 +232,7 @@ func on_area_entered(body):
 			print("---------------")
 			#linear_velocity = Vector2(0,0)
 			#angular_velocity = 0
-			
+	
 			
 			
 			

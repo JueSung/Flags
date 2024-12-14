@@ -9,4 +9,4 @@ angular_damp = 4.0
 script = ExtResource("1_ly6i1")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10, -10, -10, -5, -5, -5, 5, 5, 5, 5, -5, -5, -5)
+polygon = PackedVector2Array(-30, -30, 30, -30, 30, 30, -30, 30, -30, -30, -20, -20, -20, 20, 20, 20, 20, -20, -20, -20)

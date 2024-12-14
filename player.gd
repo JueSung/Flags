@@ -15,6 +15,7 @@ var right = false
 var space = false
 var left_click = false
 var right_click = false
+var side_mouse_click = false
 
 var mouse_position = Vector2(0,0)
 
@@ -56,6 +57,13 @@ func _physics_process(delta):
 		#update player_data
 		player_data["position"] = position
 
+func die():
+	print("I die")
+	velocity = Vector2(0,0)
+	position = Vector2(20,20)
+
+
+
 #ran by clients to render game state
 func update_game_state(player_dataa):
 	position = player_dataa["position"]
@@ -67,5 +75,6 @@ func update_inputs(inputs):
 	space = inputs["space"]
 	left_click = inputs["left_click"]
 	right_click = inputs["right_click"]
+	side_mouse_click = inputs["side_mouse_click"]
 	mouse_position.x = inputs["mouse_position_x"]
 	mouse_position.y = inputs["mouse_position_y"]
