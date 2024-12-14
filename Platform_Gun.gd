@@ -10,6 +10,11 @@ var left_length_default = 1
 var right_speed = 80 #figure out CHANGE
 var right_speed_default = 20
 
+var current_ability = null #for melee abilities/abiilities that exist mutually exclusive of other abilities
+
+#0 = no resistance, otherwise, 2pi/rotational_resistance = radians per second able to move
+var rotational_resistance = 0 #0 = no resistance, otherwise, radians per second able to move
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -17,10 +22,16 @@ func _ready():
 
 
 func _process(delta):
+	#rotation calculation
+	var target_rot = 0
 	if get_parent().mouse_position.x - global_position.x != 0:
-		rotation = atan2((get_parent().mouse_position.y - get_parent().global_position.y),(get_parent().mouse_position.x - get_parent().global_position.x))
-	position = 20 * Vector2(cos(rotation), sin(rotation)).normalized()
+		target_rot = atan2((get_parent().mouse_position.y - get_parent().global_position.y),(get_parent().mouse_position.x - get_parent().global_position.x))
+	if rotational_resistance == 0 or abs(rotation - target_rot) <= 2 * PI / rotational_resistance * delta:
+		rotation = target_rot
+	else:
+		rotation += (target_rot - rotation) / abs(target_rot - rotation) * 2 * PI / rotational_resistance * delta
 	
+	position = 20 * Vector2(cos(rotation), sin(rotation)).normalized()
 	
 	#charging weapons: hold to charge, release to fire
 	if get_parent().left_click:
@@ -36,7 +47,7 @@ func _process(delta):
 		#laser.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-10,-10-left_length),Vector2(10,-10-left_length),\
 		#Vector2(10,10+left_length),Vector2(-10,10+left_length)])
 		laser.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
-		laser.velocity = 60 * Vector2(cos(rotation),sin(rotation)).normalized()
+		laser.velocity = 600 * Vector2(cos(rotation),sin(rotation)).normalized()
 		if get_parent().mouse_position.x - global_position.x != 0:
 			laser.rotation = rotation
 		
@@ -54,13 +65,11 @@ func _process(delta):
 		right_charging = false
 		#discharge
 		var platform = preload("res://platform.tscn").instantiate()
-		platform.get_node("CollisionPolygon2D").polygon = PackedVector2Array([Vector2(-15,-8),Vector2(15,-8),Vector2(15,8),Vector2(-15,8)])
-		platform.global_position = global_position + 20 * Vector2(cos(rotation),sin(rotation)).normalized()
-		platform.linear_velocity = right_speed * Vector2(cos(rotation),sin(rotation)).normalized()
+		var rot = 0
 		if get_parent().mouse_position.x - global_position.x != 0:
-			platform.rotation = rotation
-		get_parent().get_parent().add_child(platform)
-		
+			rot = rotation
+		platform.Platform(30,16,global_position + 20 * Vector2(cos(rotation), sin(rotation)).normalized(), rot, right_speed * Vector2(cos(rotation), sin(rotation)).normalized())
+		get_parent().get_parent().add_child(platform)	
 		right_speed = right_speed_default
 	
 	#laser stuff
@@ -68,34 +77,17 @@ func _process(delta):
 		side_mouse_charging = true
 	elif side_mouse_charging:
 		side_mouse_charging = false
-		#discharge
-		#SHABLAM
-		var laser = preload("res://laser.tscn").instantiate()
-		var space_state = get_world_2d().direct_space_state
-	
-	
-	
-		# Define the start and end points for the raycast
-		var start_point = global_position
-		var end_point = start_point + Vector2(cos(rotation),sin(rotation)) * 600 #start_point + direction * max laser len
-		
-		# Perform the raycast
-		
-		var result = space_state.intersect_ray(PhysicsRayQueryParameters2D.create(start_point, end_point, collision_mask, [self, get_parent()]))
-		
-		if result:
-			# Adjust laser length to the collision point
-			var collision_point = result.position
-			print(collision_point.x, ", ", collision_point.y)
-			var distance = sqrt((global_position.x - result.position.x)**2 + (global_position.y - result.position.y)**2)
-			laser.global_position = Vector2(distance/2 * cos(rotation) + global_position.x, distance/2 * sin(rotation) + global_position.y)
-			laser.scale.x *= distance
-			laser.rotation = rotation
-			print(global_position)
-			print(global_position.x + distance/2 * cos(rotation), ", ", global_position.y + distance/2*sin(rotation))
-		else:
-			# No collision, laser reaches maximum length
-			print("hi")
+		if current_ability == null:
+			#discharge
+			#SHABLAM
+			var laser = preload("res://laser.tscn").instantiate()
+			current_ability = laser
+			add_child(laser)
 
-		
-		get_parent().get_parent().add_child(laser)
+func set_rotational_resistance(res):
+	rotational_resistance = res
+
+
+func lose_ability(): #current_ability == null
+	current_ability = null
+	rotational_resistance = 0

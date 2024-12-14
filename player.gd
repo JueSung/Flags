@@ -18,6 +18,16 @@ var right_click = false
 var side_mouse_click = false
 
 var mouse_position = Vector2(0,0)
+#--------
+
+#player value things
+var toastedness = 0
+var heat_sources = 0
+var TOASTEDNESS_TOLERANCE = 10 #if too toasted, catches on fire
+var on_fire = false
+
+#--------------------------------
+
 
 #holds info like position, animation_frame, etc.
 var player_data
@@ -52,10 +62,24 @@ func _physics_process(delta):
 		else:
 			velocity.x = move_toward(velocity.x, 0, SPEED)
 		
+		toastedness += heat_sources * delta
+		
+		if toastedness >= TOASTEDNESS_TOLERANCE:
+			on_fire = true
+			print(self, " player is on fire lol" )
+		
+		
 		move_and_slide()
 		
 		#update player_data
 		player_data["position"] = position
+
+func add_heat_source():
+	heat_sources += 1
+func remove_heat_source():
+	heat_sources -= 1
+	
+	
 
 func die():
 	print("I die")

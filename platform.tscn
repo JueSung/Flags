@@ -10,3 +10,7 @@ script = ExtResource("1_ly6i1")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
 polygon = PackedVector2Array(-30, -30, 30, -30, 30, 30, -30, 30, -30, -30, -20, -20, -20, 20, 20, 20, 20, -20, -20, -20)
+
+[node name="ExtendedRange" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ExtendedRange"]
