@@ -4,6 +4,7 @@
 
 [node name="Platform" type="RigidBody2D"]
 gravity_scale = 0.0
+continuous_cd = 1
 linear_damp = 4.0
 angular_damp = 4.0
 script = ExtResource("1_ly6i1")

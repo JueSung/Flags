@@ -3,11 +3,11 @@ class_name Player
 
 var my_ID
 
-const SPEED = 140.0
-const JUMP_VELOCITY = -200.0
+const SPEED = 420
+const JUMP_VELOCITY = -600.0
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = 490
+var gravity = 1470
 
 #user inputs
 var left = false
@@ -34,7 +34,8 @@ var player_data
 
 func _ready():
 	player_data = {
-		"position" : position
+		"position" : position,
+		"weapon_data" : $Weapon.weapon_data
 	}
 
 
@@ -64,7 +65,7 @@ func _physics_process(delta):
 		
 		toastedness += heat_sources * delta
 		
-		if toastedness >= TOASTEDNESS_TOLERANCE:
+		if toastedness >= TOASTEDNESS_TOLERANCE and not on_fire: #only runs once
 			on_fire = true
 			print(self, " player is on fire lol" )
 		
@@ -73,6 +74,7 @@ func _physics_process(delta):
 		
 		#update player_data
 		player_data["position"] = position
+		player_data["weapon_data"] = $Weapon.weapon_data
 
 func add_heat_source():
 	heat_sources += 1
@@ -84,13 +86,14 @@ func remove_heat_source():
 func die():
 	print("I die")
 	velocity = Vector2(0,0)
-	position = Vector2(20,20)
+	position = Vector2(60,60)
 
 
 
 #ran by clients to render game state
 func update_game_state(player_dataa):
 	position = player_dataa["position"]
+	$Weapon.update_game_state(player_dataa["weapon_data"])
 	
 #ran by clients to update inputs
 func update_inputs(inputs):

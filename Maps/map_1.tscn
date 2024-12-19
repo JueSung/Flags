@@ -1,39 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://dt4ref40n7fcg"]
+[gd_scene load_steps=2 format=3 uid="uid://dt4ref40n7fcg"]
 
 [ext_resource type="Script" path="res://Maps/map_1.gd" id="1_ffql2"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3hu0v"]
-size = Vector2(640, 10)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_acdjw"]
-size = Vector2(20, 360)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0ut2c"]
-size = Vector2(20, 360)
-
 [node name="Map1" type="Node2D"]
 script = ExtResource("1_ffql2")
-
-[node name="Floor" type="RigidBody2D" parent="."]
-position = Vector2(320, 360)
-gravity_scale = 0.0
-freeze = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
-shape = SubResource("RectangleShape2D_3hu0v")
-
-[node name="LBorder" type="RigidBody2D" parent="."]
-position = Vector2(0, 175)
-gravity_scale = 0.0
-freeze = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LBorder"]
-shape = SubResource("RectangleShape2D_acdjw")
-
-[node name="RBorder" type="RigidBody2D" parent="."]
-position = Vector2(640, 175)
-gravity_scale = 0.0
-freeze = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RBorder"]
-shape = SubResource("RectangleShape2D_0ut2c")

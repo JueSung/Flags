@@ -1,12 +1,13 @@
 [gd_scene load_steps=5 format=3 uid="uid://lq6rkk6x75n4"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_jx28n"]
-[ext_resource type="Script" path="res://Platform_Gun.gd" id="2_tcmnc"]
+[ext_resource type="Script" path="res://Weapon.gd" id="2_87ued"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_etn8c"]
-size = Vector2(10, 10)
+size = Vector2(30, 30)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jpcgm"]
+size = Vector2(60, 60)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_jx28n")
@@ -14,8 +15,8 @@ script = ExtResource("1_jx28n")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_etn8c")
 
-[node name="Platform_Gun" type="Area2D" parent="."]
-script = ExtResource("2_tcmnc")
+[node name="Weapon" type="Area2D" parent="."]
+script = ExtResource("2_87ued")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform_Gun"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Weapon"]
 shape = SubResource("RectangleShape2D_jpcgm")

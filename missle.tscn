@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://missle.gd" id="1_mqax6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_k5kf0"]
+radius = 30.0
 
 [node name="Missle" type="Area2D"]
 script = ExtResource("1_mqax6")
