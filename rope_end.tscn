@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://cy6t6baxfuexa"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_cdure"]
+radius = 2.0
+height = 4.0
+
+[node name="Rope_End" type="RigidBody2D"]
+scale = Vector2(2, 2)
+collision_layer = 2
+collision_mask = 2
+freeze = true
+
+[node name="C" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_cdure")
+
+[node name="P" type="PinJoint2D" parent="C"]
+node_a = NodePath("../..")

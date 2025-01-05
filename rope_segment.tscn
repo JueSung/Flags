@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwocaseqatkmn"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4cpcq"]
+radius = 4.0
+height = 16.0
+
+[node name="rope_segment" type="RigidBody2D"]
+collision_layer = 3
+collision_mask = 3
+mass = 0.5
+gravity_scale = 0.5
+linear_damp = 2.0
+
+[node name="C" type="CollisionShape2D" parent="."]
+position = Vector2(0, 8)
+shape = SubResource("CapsuleShape2D_4cpcq")
+
+[node name="P" type="PinJoint2D" parent="C"]
+visible = false
+position = Vector2(0, 8)
+node_a = NodePath("../..")
+bias = 0.9
+softness = 0.1
+angular_limit_enabled = true
+angular_limit_lower = -1.0472
+angular_limit_upper = 1.0472

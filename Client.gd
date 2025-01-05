@@ -19,7 +19,8 @@ func _ready():
 		"right_click" : false,
 		"side_mouse_click" : false,
 		"mouse_position_x" : 0,
-		"mouse_position_y" : 0
+		"mouse_position_y" : 0,
+		"E" : false
 	}
 
 
@@ -37,7 +38,8 @@ func _process(delta):
 
 	inputs["mouse_position_x"] = get_viewport().get_mouse_position().x
 	inputs["mouse_position_y"] = get_viewport().get_mouse_position().y
-		
+	
+	inputs["E"] = Input.is_action_pressed("E")
 	var packet = JSON.stringify(inputs)
 	send_to_host.emit(packet)
 

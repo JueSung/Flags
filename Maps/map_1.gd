@@ -14,6 +14,19 @@ func _ready():
 		make_platform(60,1080,Vector2(0,525),0,Vector2(0,0), false)
 		make_platform(1920,30,Vector2(960,1080), 0, Vector2(0,0), false)
 		make_platform(60,1080,Vector2(1920,525),0,Vector2(0,0), false)
+		
+		var ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Laser", Vector2(400, 100))
+		get_parent().add_child(ability_item)
+		ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Laser", Vector2(400, 100))
+		get_parent().add_child(ability_item)
+		ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Missle", Vector2(400, 100))
+		get_parent().add_child(ability_item)
+		ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Platform", Vector2(400, 100))
+		get_parent().add_child(ability_item)
 
 
 func make_platform(x,y,pos,rot,linear_velocity, breakable):

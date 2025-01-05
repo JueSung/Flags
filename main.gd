@@ -128,6 +128,7 @@ func start_game():
 		map = preload("res://Maps/map_1.tscn").instantiate()
 		map.Map(1) #constructor instantiates map type 1
 		add_child(map)
+		#add_child(preload("res://rope.tscn").instantiate())
 	var count = 0
 	#create player objects
 	for peer_id in players_IDs:

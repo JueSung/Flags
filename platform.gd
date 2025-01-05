@@ -11,7 +11,13 @@ var TEMPTOLERANCE = 5
 var on_fire = false
 var objects_touching = []
 
-#constructor
+#constructors------------------------------------------------------------------------------------------
+#constructor for ability instantiated platforms
+func Ability(global_positionn, rotationn):
+	Platform(90, 48, global_positionn + 60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), rotationn, \
+	60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), true)
+
+#general constructor
 func Platform(x,y,pos,rot,linear_v, breakable):
 	$CollisionPolygon2D.polygon = PackedVector2Array([Vector2(-1*x/2,-1*y/2),Vector2(x/2,-1*y/2),Vector2(x/2,y/2),Vector2(-1*x/2,y/2)])
 	$ExtendedRange/CollisionPolygon2D.polygon = PackedVector2Array([Vector2(-1*x/2-30, -1 * y/2-30), Vector2(x/2+30, -1*y/2-30), Vector2(x/2+30, y/2+30), Vector2(-1*x/2-30, y/2+30)])
@@ -26,6 +32,9 @@ func Platform(x,y,pos,rot,linear_v, breakable):
 	platform_data["position"] = pos
 	platform_data["rotation"] = rot
 	
+	$Sprite2D.scale = Vector2(0.023 * x/30, .024 * y/16)
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -35,8 +44,6 @@ func _ready():
 	get_parent().objects_data[str(self)] = platform_data
 	
 	if get_parent().my_ID == 1:
-		pass
-		print($ExtendedRange)
 		$ExtendedRange.connect("body_entered", body_entered)
 		$ExtendedRange.connect("body_exited", body_exited)
 

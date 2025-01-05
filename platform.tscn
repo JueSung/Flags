@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://cylnctchjk3na"]
+[gd_scene load_steps=3 format=3 uid="uid://cylnctchjk3na"]
 
 [ext_resource type="Script" path="res://platform.gd" id="1_ly6i1"]
+[ext_resource type="Texture2D" uid="uid://vrqohlvhnu2x" path="res://Sprites/Platform- sketch-simple.png" id="2_xq1qm"]
 
 [node name="Platform" type="RigidBody2D"]
+collision_layer = 5
+collision_mask = 5
 gravity_scale = 0.0
 continuous_cd = 1
 linear_damp = 4.0
@@ -10,8 +13,13 @@ angular_damp = 4.0
 script = ExtResource("1_ly6i1")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-polygon = PackedVector2Array(-30, -30, 30, -30, 30, 30, -30, 30, -30, -30, -20, -20, -20, 20, 20, 20, 20, -20, -20, -20)
+polygon = PackedVector2Array(-15, -8, 15, -8, 15, 8, -15, 8)
 
 [node name="ExtendedRange" type="Area2D" parent="."]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ExtendedRange"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-0.5, 0.85)
+rotation = 0.00523599
+texture = ExtResource("2_xq1qm")

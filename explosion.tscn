@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bch77vwmm53lp"]
+
+[ext_resource type="Script" path="res://explosion.gd" id="1_5m8kq"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mb3p6"]
+radius = 50.0
+
+[node name="Explosion" type="Area2D"]
+script = ExtResource("1_5m8kq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_mb3p6")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -21.0
+offset_top = -10.0
+offset_right = 19.0
+offset_bottom = 13.0

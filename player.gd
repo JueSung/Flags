@@ -6,6 +6,10 @@ var my_ID
 const SPEED = 420
 const JUMP_VELOCITY = -600.0
 
+var AIR_FRICTION = 420
+
+var surface = null#NEW
+
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = 1470
 
@@ -18,6 +22,8 @@ var right_click = false
 var side_mouse_click = false
 
 var mouse_position = Vector2(0,0)
+
+var E = false
 #--------
 
 #player value things
@@ -33,6 +39,7 @@ var on_fire = false
 var player_data
 
 func _ready():
+	$AnimatedSprite2D.animation = "Marshmallow1"
 	player_data = {
 		"position" : position,
 		"weapon_data" : $Weapon.weapon_data
@@ -42,13 +49,34 @@ func _ready():
 func _physics_process(delta):
 	#only run if is server
 	if get_parent().my_ID == 1:
+		#new
+		#if get_slide_collision_count() > 0:
+			#surface = get_slide_collision(0)
+			#rotation = atan2(surface.get_normal().x, -1*surface.get_normal().y)
+		#else:
+		#	surface = null
+		
+		
 		# Add the gravity.
-		if not is_on_floor():
-			velocity.y += gravity * delta
+		if not is_on_floor():#dum stuff && not is_on_ceiling() and not is_on_wall():#newsurface == null:
+			#gravity increases by 50% when falling to make jumping feel better
+			#falling is velocity.y > 0 bc down is +y
+			if velocity.y <= 0 || space:
+				velocity.y += gravity * delta
+			else:
+				velocity.y += gravity * 1.5 * delta 
 
 		# Handle jump.
-		if space and is_on_floor():
+		if space and is_on_floor():#dum stuff or is_on_ceiling() or is_on_wall()): #newsurface != null:
+			#if is_on_floor():
+			#	up_direction = -1 * get_floor_normal()
+			#elif is_on_ceiling():
+			#	up_direction = -1 * Vector2(1,0) #idk why no get_ceiling_normal()
+			#elif is_on_wall():
+			#	up_direction = -1 * get_wall_normal()
 			velocity.y = JUMP_VELOCITY
+			#velocity.y = JUMP_VELOCITY
+
 
 		# Get the input direction and handle the movement/deceleration.
 		# As good practice, you should replace UI actions with custom gameplay actions.
@@ -60,8 +88,21 @@ func _physics_process(delta):
 		
 		if direction:
 			velocity.x = direction * SPEED
+			#if surface:
+			#	velocity = Vector2(surface.get_normal().y * -1, surface.get_normal().x) * direction * SPEED
+			#else:
+			#	velocity.x = direction * SPEED
+			if direction >= 0:
+				$AnimatedSprite2D.scale = Vector2(abs($AnimatedSprite2D.scale.x), abs($AnimatedSprite2D.scale.y))
+			else:
+				$AnimatedSprite2D.scale = Vector2(abs($AnimatedSprite2D.scale.x)*-1, abs($AnimatedSprite2D.scale.y))
+			$AnimatedSprite2D.play()
 		else:
+			$AnimatedSprite2D.stop()
+			
+			#way to slow down velocity when not inputs not right or left
 			velocity.x = move_toward(velocity.x, 0, SPEED)
+			#newvelocity.y = move_toward(velocity.y, 0, SPEED)
 		
 		toastedness += heat_sources * delta
 		
@@ -105,3 +146,4 @@ func update_inputs(inputs):
 	side_mouse_click = inputs["side_mouse_click"]
 	mouse_position.x = inputs["mouse_position_x"]
 	mouse_position.y = inputs["mouse_position_y"]
+	E = inputs["E"]

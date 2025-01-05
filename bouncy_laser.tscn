@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://daedq2414ht24"]
+
+[ext_resource type="Texture2D" uid="uid://o0wdufxchchu" path="res://Sprites/Thin- laser-sketch-simple.png" id="1_8ybm0"]
+[ext_resource type="Script" path="res://bouncy_laser.gd" id="1_nfr3f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yglqt"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0vwp8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_8ybm0")
+}],
+"loop": true,
+"name": &"bouncy_laser_sketch",
+"speed": 5.0
+}]
+
+[node name="BouncyLaser" type="RigidBody2D"]
+script = ExtResource("1_nfr3f")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_yglqt")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-18, -7)
+rotation = 0.010472
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_0vwp8")
+animation = &"bouncy_laser_sketch"
