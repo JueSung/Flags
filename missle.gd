@@ -1,5 +1,7 @@
 extends Area2D
 class_name Missle
+
+var IS_MELEE = false #its a projecitle
 var velocity = Vector2(0,0)
 var max_speed = 1800
 var speed = 0
@@ -9,11 +11,13 @@ var collision_point = null
 
 var age
 
+var stacked_ability = {}
+
 var missle_data = {}
 
-func Ability(global_positionn, rotationn):
+func Ability(global_positionn, rotationn, stacked):
 	#max velocity also contains info about direction
-	global_position = global_positionn
+	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
 	rotation = rotationn
 
 # Called when the node enters the scene tree for the first time.
@@ -56,18 +60,21 @@ func _process(delta):
 		
 		velocity = speed * Vector2(cos(rotation), sin(rotation)).normalized()
 		
-		#50 is length of collision shape of missle
+		#50 is for covering the length of the missle as well
 		$RayCast2D.target_position.x = velocity.length() * delta
 		$RayCast2D2.target_position.x = velocity.length() * delta
 		if $RayCast2D.is_colliding():
-			free_soon = true
-			collision_point = $RayCast2D.get_collision_point()
+			print(stacked_ability.has(str($RayCast2D.get_collider())))
+			if not stacked_ability.has(str($RayCast2D.get_collider())):
+				free_soon = true
+				collision_point = $RayCast2D.get_collision_point()
 		if $RayCast2D2.is_colliding():
-			free_soon = true
-			if collision_point != null:
-				collision_point = (collision_point + $RayCast2D2.get_collision_point())/2.0
-			else:
-				collision_point = $RayCast2D2.get_collision_point()
+			if not stacked_ability.has(str($RayCast2D2.get_collider())):
+				free_soon = true
+				if collision_point != null:
+					collision_point = (collision_point + $RayCast2D2.get_collision_point())/2.0
+				else:
+					collision_point = $RayCast2D2.get_collision_point()
 		
 		
 		position += velocity * delta
@@ -94,6 +101,36 @@ func explode():
 	queue_free()
 		#missle_data["scale"] = scale
 		#free_soon = true
+
+#non-melee aka projectile stuff---------------------------------------------------------------------
+func stack_ability(ability):
+	if stacked_ability.size() != 0:
+		for key in stacked_ability:
+			#if projectile is present, there could only be one in stacked abilities
+			if not stacked_ability[key].IS_MELEE:
+				stacked_ability[key].stack_ability(ability)
+				return
+			else:
+				break
+	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
+	ability.Ability(global_position + 25 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	#rn have it so projectiles don't stick to each other, they just spawn there
+	if not ability.IS_MELEE:
+		get_parent().add_child(ability)
+		stacked_ability[str(ability)] = ability
+	else: #iS_MELEE
+		add_child(ability)
+		stacked_ability[str(ability)] = ability
+		var count = 0
+		for key in stacked_ability:
+			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
+			 - PI/8.0 * ((stacked_ability.size()+1) % 2))
+			count += 1
+	
+func lose_ability(stringified_ability):
+	stacked_ability.erase(stringified_ability)
+
+#------------------------------------------------------------------------------------------------
 
 #collision handled either by this, or by Raycast in _process(delta)
 func area_entered(area):

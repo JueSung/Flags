@@ -57,7 +57,9 @@ libraries = {
 [node name="RayCast2D" type="RayCast2D" parent="."]
 position = Vector2(25, -10)
 target_position = Vector2(100, 0)
+collide_with_areas = true
 
 [node name="RayCast2D2" type="RayCast2D" parent="."]
 position = Vector2(25, 10)
 target_position = Vector2(100, 0)
+collide_with_areas = true

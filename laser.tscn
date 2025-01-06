@@ -48,6 +48,7 @@ script = ExtResource("1_ipcv2")
 shape = SubResource("RectangleShape2D_18daa")
 
 [node name="AnimatedSprite2D1" type="AnimatedSprite2D" parent="."]
+visible = false
 scale = Vector2(0.35, 0.35)
 sprite_frames = SubResource("SpriteFrames_1hhki")
 animation = &"front"
@@ -55,6 +56,7 @@ offset = Vector2(38.5, 28.571)
 flip_h = true
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+visible = false
 scale = Vector2(0.35, 0.35)
 sprite_frames = SubResource("SpriteFrames_iy3og")
 animation = &"mid"
@@ -62,6 +64,7 @@ offset = Vector2(38.5, 28.571)
 flip_h = true
 
 [node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="."]
+visible = false
 position = Vector2(0, 9.53674e-07)
 scale = Vector2(0.35, 0.35)
 sprite_frames = SubResource("SpriteFrames_gi1we")

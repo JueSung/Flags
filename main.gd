@@ -14,6 +14,13 @@ var objects_to_be_deleted = [] #to send to clients
 
 var map
 
+#Game Constants Stuff that various stuff needs to know that I don't want to repeat in every node------------------------
+var MELEE_ABILITIES = ["Laser"]
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+
 func _ready():
 	$HUD.show()
 	$Lobby.player_loaded.rpc_id(1) # Tell the server that this peer has loaded.

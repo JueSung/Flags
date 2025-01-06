@@ -1,6 +1,8 @@
 extends RigidBody2D
 class_name Platform
 
+var IS_MELEE = false #its a projecitle
+
 var BREAKABLE = true
 
 var platform_data=  {}
@@ -11,10 +13,12 @@ var TEMPTOLERANCE = 5
 var on_fire = false
 var objects_touching = []
 
+var stacked_ability = {}
+
 #constructors------------------------------------------------------------------------------------------
 #constructor for ability instantiated platforms
-func Ability(global_positionn, rotationn):
-	Platform(90, 48, global_positionn + 60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), rotationn, \
+func Ability(global_positionn, rotationn, stacked):
+	Platform(48, 90, global_positionn + 24 * Vector2(cos(rotationn), sin(rotationn)).normalized(), rotationn, \
 	60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), true)
 
 #general constructor
@@ -62,6 +66,36 @@ func _process(delta):
 			
 		platform_data["position"] = position
 		platform_data["rotation"] = rotation
+
+#non-melee aka projectile stuff---------------------------------------------------------------------
+func stack_ability(ability):
+	if stacked_ability.size() != 0:
+		for key in stacked_ability:
+			#if projectile is present, there could only be one in stacked abilities
+			if not stacked_ability[key].IS_MELEE:
+				stacked_ability[key].stack_ability(ability)
+				return
+			else:
+				break
+	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
+	ability.Ability(global_position + 24 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	#rn have it so projectiles don't stick to each other, they just spawn there
+	if not ability.IS_MELEE:
+		get_parent().add_child(ability)
+		stacked_ability[str(ability)] = ability
+	else: #iS_MELEE
+		add_child(ability)
+		stacked_ability[str(ability)] = ability
+		var count = 0
+		for key in stacked_ability:
+			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
+			 - PI/8.0 * ((stacked_ability.size()+1) % 2))
+			count += 1
+
+func lose_ability(stringified_ability):
+	stacked_ability.erase(stringified_ability)
+
+#------------------------------------------------------------------------------------------------
 
 func get_data():
 	return platform_data
