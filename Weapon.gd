@@ -19,9 +19,11 @@ var third_charging = false
 
 var current_ability = null #for melee abilities/abiilities that exist mutually exclusive of other abilities
 
+#for melee--------------------
 var left_active_ability = {}
 var right_active_ability = {}
 var third_active_ability = {}
+#-----------------------------
 
 var left_ability = []
 var right_ability = []
@@ -102,10 +104,12 @@ func _process(delta):
 		if get_parent().left_click and left_cooldown_state>=1:
 			left_charging = true
 		elif left_charging:
+			
 			left_cooldown_state = 0
 			left_charging = false
 			#discharge ability
-			var stacking_next_on = null
+			test(left_ability, left_active_ability)
+			"""var stacking_next_on = null
 			for i in range(len(left_ability)):
 				var ability = scenes[left_ability[i]].instantiate()
 				if stacking_next_on == null:
@@ -129,7 +133,7 @@ func _process(delta):
 						 - PI/8.0 * ((left_active_ability.size()+1) % 2))
 						count += 1
 				else:
-					get_parent().get_parent().add_child(ability)
+					get_parent().get_parent().add_child(ability)"""
 			
 			#var missle = preload("res://missle.tscn").instantiate()
 			#missle.Ability(global_position, rotation)
@@ -146,7 +150,8 @@ func _process(delta):
 			right_cooldown_state = 0
 			right_charging = false
 			#discharge
-			var stacking_next_on = null #used if stacking abilities on projectile
+			test(right_ability, right_active_ability)
+			"""var stacking_next_on = null #used if stacking abilities on projectile
 			for i in range(len(right_ability)):
 				var ability = scenes[right_ability[i]].instantiate()
 				if stacking_next_on == null:
@@ -167,7 +172,7 @@ func _process(delta):
 						 - PI/8.0 * ((right_active_ability.size()+1) % 2))
 						count += 1
 				else:
-					get_parent().get_parent().add_child(ability)
+					get_parent().get_parent().add_child(ability)"""
 		#----------------------------------------------------------------------------------------------------------------------------
 		#third mouse button------------------------------------------------------------------
 		if get_parent().side_mouse_click and third_cooldown_state >= 1:
@@ -176,7 +181,9 @@ func _process(delta):
 			third_cooldown_state = 0
 			third_charging = false
 			#discharge
-			var stacking_next_on = null
+			test(third_ability, third_active_ability)
+			
+			"""var stacking_next_on = null
 			for i in range(len(third_ability)):
 				var ability = scenes[third_ability[i]].instantiate()
 				if stacking_next_on == null:
@@ -197,16 +204,16 @@ func _process(delta):
 						third_active_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
 						 - PI/8.0 * ((third_active_ability.size()+1) % 2))
 						count += 1
-						
+					"""
 					
-					"""if current_ability == null:
-						current_ability = ability
-						add_child(ability)
-						weapon_data["current_ability"] = current_ability.get_data()
-					else:
-						current_ability.stack(ability)"""
-				else:
-					get_parent().get_parent().add_child(ability)
+				##	"""if current_ability == null:
+				##		current_ability = ability
+				##		add_child(ability)
+				##		weapon_data["current_ability"] = current_ability.get_data()
+				##	else:
+				##		current_ability.stack(ability)"""
+				##else:
+				##	get_parent().get_parent().add_child(ability)
 			
 			#if current_ability == null:
 				#discharge
@@ -249,7 +256,6 @@ func _process(delta):
 					third_ability.append(potential_ability_gains[key].ability_name)
 					potential_ability_gains[key].queue_free()
 					potential_ability_gains.erase(str(potential_ability_gains[key]))
-			print(potential_ability_gains)
 		#----------------------------------------------------------------------------------------------
 			
 		#multiplayer stuff
@@ -263,7 +269,43 @@ func _process(delta):
 		
 		pre_pos = position
 		pre_rot = rotation
-	
+
+
+#test---
+func test(which_ability, which_active_ability):
+	var stacking_next_on = null
+	for i in range(len(which_ability)):
+		var ability = scenes[which_ability[i]].instantiate()
+		if stacking_next_on == null:
+			if not ability.IS_MELEE:
+				stacking_next_on = ability
+		else:
+			stacking_next_on.stack_ability(ability)
+			continue
+		
+		ability.Ability(global_position+30 * Vector2(cos(rotation),sin(rotation)).normalized(), rotation, false)
+		
+		if which_ability[i] in MELEE_ABILITIES:
+			#add must come before adding to map because reference changes after add_child()
+			add_child(ability)
+			which_active_ability[str(ability)] = ability
+			var count = 0
+			for key in which_active_ability:
+				which_active_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
+				 - PI/8.0 * ((which_active_ability.size()+1) % 2))
+				count += 1
+				
+			
+			"""if current_ability == null:
+				current_ability = ability
+				add_child(ability)
+				weapon_data["current_ability"] = current_ability.get_data()
+			else:
+				current_ability.stack(ability)"""
+		else:
+			get_parent().get_parent().add_child(ability)
+
+#---
 func body_entered(body):
 	potential_ability_gains[str(body)] = body
 func body_exited(body):

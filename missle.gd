@@ -9,9 +9,12 @@ var later_scale = 3.5 #related to scale
 var free_soon = false
 var collision_point = null
 
+
+
 var age
 
 var stacked_ability = {}
+var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't react with
 
 var missle_data = {}
 
@@ -19,6 +22,7 @@ func Ability(global_positionn, rotationn, stacked):
 	#max velocity also contains info about direction
 	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
 	rotation = rotationn
+	
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -26,7 +30,7 @@ func _ready():
 	get_parent().objects_data[str(self)] = missle_data
 	
 	if get_parent().my_ID == 1:
-		
+		objects_on_stack_chain.append(self)
 		
 		
 		missle_data["type"] = "missle"
@@ -64,12 +68,11 @@ func _process(delta):
 		$RayCast2D.target_position.x = velocity.length() * delta
 		$RayCast2D2.target_position.x = velocity.length() * delta
 		if $RayCast2D.is_colliding():
-			print(stacked_ability.has(str($RayCast2D.get_collider())))
-			if not stacked_ability.has(str($RayCast2D.get_collider())):
+			if not $RayCast2D.get_collider() in objects_on_stack_chain:
 				free_soon = true
 				collision_point = $RayCast2D.get_collision_point()
 		if $RayCast2D2.is_colliding():
-			if not stacked_ability.has(str($RayCast2D2.get_collider())):
+			if not $RayCast2D2.get_collider() in objects_on_stack_chain:
 				free_soon = true
 				if collision_point != null:
 					collision_point = (collision_point + $RayCast2D2.get_collision_point())/2.0
@@ -114,6 +117,8 @@ func stack_ability(ability):
 				break
 	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
 	ability.Ability(global_position + 25 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	ability.objects_on_stack_chain = objects_on_stack_chain
+	
 	#rn have it so projectiles don't stick to each other, they just spawn there
 	if not ability.IS_MELEE:
 		get_parent().add_child(ability)
@@ -121,6 +126,7 @@ func stack_ability(ability):
 	else: #iS_MELEE
 		add_child(ability)
 		stacked_ability[str(ability)] = ability
+		
 		var count = 0
 		for key in stacked_ability:
 			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
@@ -134,12 +140,16 @@ func lose_ability(stringified_ability):
 
 #collision handled either by this, or by Raycast in _process(delta)
 func area_entered(area):
+	if area in objects_on_stack_chain:
+		return
 	if area is Missle and str(self) < str(area):
 		explode()
 		area.explode()
 	
 	
 func body_entered(body):
+	if body in objects_on_stack_chain:
+		return
 	if body is Platform:
 		explode()
 		#if body.BREAKABLE:

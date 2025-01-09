@@ -14,6 +14,7 @@ var on_fire = false
 var objects_touching = []
 
 var stacked_ability = {}
+var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't react with
 
 #constructors------------------------------------------------------------------------------------------
 #constructor for ability instantiated platforms
@@ -48,6 +49,9 @@ func _ready():
 	get_parent().objects_data[str(self)] = platform_data
 	
 	if get_parent().my_ID == 1:
+		objects_on_stack_chain.append(self)
+		objects_on_stack_chain.append($ExtendedRange)
+		
 		$ExtendedRange.connect("body_entered", body_entered)
 		$ExtendedRange.connect("body_exited", body_exited)
 
@@ -79,6 +83,8 @@ func stack_ability(ability):
 				break
 	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
 	ability.Ability(global_position + 24 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	ability.objects_on_stack_chain = objects_on_stack_chain
+	
 	#rn have it so projectiles don't stick to each other, they just spawn there
 	if not ability.IS_MELEE:
 		get_parent().add_child(ability)
@@ -86,6 +92,7 @@ func stack_ability(ability):
 	else: #iS_MELEE
 		add_child(ability)
 		stacked_ability[str(ability)] = ability
+		
 		var count = 0
 		for key in stacked_ability:
 			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
