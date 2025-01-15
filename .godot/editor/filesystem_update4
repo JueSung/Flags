@@ -1,14 +1,11 @@
 res://main.tscn
+res://Ability.gd
 res://missle.gd
-res://Maps/map_1.gd
 res://platform.tscn
 res://missle.tscn
 res://laser.tscn
 res://player.tscn
-res://ability_item.tscn
-res://client.tscn
-res://Maps/map_1.tscn
-res://Weapon.gd
 res://platform.gd
 res://laser.gd
-res://ability_indicator.tscn
+res://ExtendedRange.gd
+res://MissleA2D.gd

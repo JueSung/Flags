@@ -16,11 +16,16 @@ var objects_touching = []
 var stacked_ability = {}
 var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't react with
 
+#not  activated until activate() is called aka when ability is fired used for showing mouse button held\
+#down ability without firing and pre-instantiating abilities
+var activated = true
+
 #constructors------------------------------------------------------------------------------------------
 #constructor for ability instantiated platforms
 func Ability(global_positionn, rotationn, stacked):
-	Platform(48, 90, global_positionn + 24 * Vector2(cos(rotationn), sin(rotationn)).normalized(), rotationn, \
+	Platform(48, 90, global_positionn + 24 * Vector2(cos(rotationn), sin(rotationn)).normalized(), 0, \
 	60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), true)
+	activated = false
 
 #general constructor
 func Platform(x,y,pos,rot,linear_v, breakable):
@@ -43,12 +48,21 @@ func Platform(x,y,pos,rot,linear_v, breakable):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	#start deactivated if constructor Ability() is run -- activatd by activate() function
+	if activated == false:
+		global_position = get_parent().to_local(global_position)
+		$CollisionPolygon2D.disabled = true
+		$ExtendedRange/CollisionPolygon2D.disabled = true
+		hide()
+	#---------
+	
+	
 	platform_data["type"] = "platform"
+	#multiplayer stuff
+	#get_parent().objects[str(self)] = self
+	#get_parent().objects_data[str(self)] = platform_data
 	
-	get_parent().objects[str(self)] = self
-	get_parent().objects_data[str(self)] = platform_data
-	
-	if get_parent().my_ID == 1:
+	if get_tree().root.get_node("Main").my_ID == 1:
 		objects_on_stack_chain.append(self)
 		objects_on_stack_chain.append($ExtendedRange)
 		
@@ -57,7 +71,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if get_parent().my_ID == 1:
+	if get_tree().root.get_node("Main").my_ID == 1 and activated:
 		temp += heat_sources * delta
 		if temp > TEMPTOLERANCE and not on_fire:
 			print("platfrom on fire")
@@ -71,7 +85,7 @@ func _process(delta):
 		platform_data["position"] = position
 		platform_data["rotation"] = rotation
 
-#non-melee aka projectile stuff---------------------------------------------------------------------
+
 func stack_ability(ability):
 	if stacked_ability.size() != 0:
 		for key in stacked_ability:
@@ -82,7 +96,8 @@ func stack_ability(ability):
 			else:
 				break
 	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
-	ability.Ability(global_position + 24 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	##ability.Ability(global_position + 24 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	ability.Ability(global_position + 24 * Vector2(cos(get_parent().rotation), sin(get_parent().rotation)).normalized(), get_parent().rotation, true)
 	ability.objects_on_stack_chain = objects_on_stack_chain
 	
 	#rn have it so projectiles don't stick to each other, they just spawn there
@@ -99,6 +114,43 @@ func stack_ability(ability):
 			 - PI/8.0 * ((stacked_ability.size()+1) % 2))
 			count += 1
 
+func showw():
+	show()
+	#just goes down stack list so must be called from top
+	for key in stacked_ability:
+		stacked_ability[key].showw()
+func hidee():
+	hide()
+	#just goes down stack list so must be called from top
+	for key in stacked_ability:
+		stacked_ability[key].hidee()
+
+
+func activate():
+	$CollisionPolygon2D.disabled = false
+	$ExtendedRange/CollisionPolygon2D.disabled = false
+	show()
+	var gP = get_parent().to_global(position)
+	var rot = get_parent().rotation + rotation
+	var main = get_tree().root.get_node("Main")
+	get_parent().remove_child(self)
+	main.add_child(self)
+	global_position = gP
+	rotation = rot
+	linear_velocity = 180 * Vector2(cos(rotation), sin(rotation)).normalized()
+	activated = true
+	
+	for key in stacked_ability:
+		stacked_ability[key].activate()
+
+#2 so it doesn't "fail" to override Node2D's get_rotation() function
+func get_rotation2():
+	if not activated:
+		return get_parent().rotation
+	else:
+		return rotation
+
+#melee stuff---------------------------------------------------------------------
 func lose_ability(stringified_ability):
 	stacked_ability.erase(stringified_ability)
 

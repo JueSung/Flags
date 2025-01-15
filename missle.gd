@@ -1,86 +1,104 @@
-extends Area2D
+extends RigidBody2D
 class_name Missle
 
 var IS_MELEE = false #its a projecitle
-var velocity = Vector2(0,0)
-var max_speed = 1800
 var speed = 0
 var later_scale = 3.5 #related to scale
 var free_soon = false
-var collision_point = null
+var collision_points = []
 
-
+var raycasts = [$MissleA2D/RC1, $MissleA2D/RC2, $MissleA2D/RC3, $MissleA2D/RC4]
 
 var age
 
 var stacked_ability = {}
 var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't react with
+var activated #explained in platform
 
 var missle_data = {}
 
 func Ability(global_positionn, rotationn, stacked):
-	#max velocity also contains info about direction
 	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
-	rotation = rotationn
 	
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	get_parent().objects[str(self)] = self
-	get_parent().objects_data[str(self)] = missle_data
+	global_position = get_parent().to_local(global_position)
+	$CollisionShape2D.disabled = true
+	$MissleA2D/CollisionShape2D.disabled = true
+	$MissleA2D/RC1.enabled = false
+	$MissleA2D/RC2.enabled = false
+	$MissleA2D/RC3.enabled = false
+	$MissleA2D/RC4.enabled = false
+	hide()
+	activated = false
 	
-	if get_parent().my_ID == 1:
+	#multiplayer stuff
+	#get_parent().objects[str(self)] = self
+	#get_parent().objects_data[str(self)] = missle_data
+	
+	if get_tree().root.get_node("Main").my_ID == 1:
 		objects_on_stack_chain.append(self)
-		
+		objects_on_stack_chain.append($MissleA2D)
 		
 		missle_data["type"] = "missle"
 		missle_data["position"] = position
 		
-		"""connect("area_entered", area_entered)
-		connect("body_entered", body_entered)"""
+		contact_monitor = true
+		max_contacts_reported = 20
+		
+		#connect("area_entered", area_entered)
+		$MissleA2D.connect("body_entered", body_entered)
+		$MissleA2D.connect("area_entered", area_entered)
 		age = 0
-		velocity = Vector2(0,0)
 	
 	$AnimationPlayer.play()
 
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	if get_parent().my_ID == 1:
+func _physics_process(delta):
+	if get_tree().root.get_node("Main").my_ID == 1 and activated:
 		missle_data = {}
 		
 		if free_soon:
-			global_position = collision_point
+			var temp = Vector2(0,0)
+			var cc = 0
+			for i in range(len(collision_points)):
+				temp += collision_points[i]
+				cc += 1
+			global_position = temp / float(cc)
 			explode()
 		
-		if age > 3 or speed >= max_speed:
-			speed = max_speed * 3
-			
-			age = -500000
-		elif age >= 1:
-			speed += max_speed * .1
-		elif age >= 0:
-			speed += max_speed * .05
+		$MissleA2D/RC1.target_position.x = linear_velocity.length() * delta
+		$MissleA2D/RC2.target_position.x = linear_velocity.length() * delta
+		$MissleA2D/RC3.target_position.x = linear_velocity.length() * delta
+		$MissleA2D/RC4.target_position.x = linear_velocity.length() * delta
 		
-		velocity = speed * Vector2(cos(rotation), sin(rotation)).normalized()
+		var rot = atan2(linear_velocity.y, linear_velocity.x) - rotation
+		$MissleA2D/RC1.rotation = rot
+		$MissleA2D/RC2.rotation = rot
+		$MissleA2D/RC3.rotation = rot
+		$MissleA2D/RC4.rotation = rot
 		
-		#50 is for covering the length of the missle as well
-		$RayCast2D.target_position.x = velocity.length() * delta
-		$RayCast2D2.target_position.x = velocity.length() * delta
-		if $RayCast2D.is_colliding():
-			if not $RayCast2D.get_collider() in objects_on_stack_chain:
+		if $MissleA2D/RC1.is_colliding():
+			if not $MissleA2D/RC1.get_collider() in objects_on_stack_chain:
 				free_soon = true
-				collision_point = $RayCast2D.get_collision_point()
-		if $RayCast2D2.is_colliding():
-			if not $RayCast2D2.get_collider() in objects_on_stack_chain:
+				collision_points.append($MissleA2D/RC1.get_collision_point())
+		if $MissleA2D/RC2.is_colliding():
+			if not $MissleA2D/RC2.get_collider() in objects_on_stack_chain:
 				free_soon = true
-				if collision_point != null:
-					collision_point = (collision_point + $RayCast2D2.get_collision_point())/2.0
-				else:
-					collision_point = $RayCast2D2.get_collision_point()
+				collision_points.append($MissleA2D/RC2.get_collision_point())
+		if $MissleA2D/RC3.is_colliding():
+			if not $MissleA2D/RC3.get_collider() in objects_on_stack_chain:
+				free_soon = true
+				collision_points.append($MissleA2D/RC3.get_collision_point())
+		if $MissleA2D/RC4.is_colliding():
+			if not $MissleA2D/RC4.get_collider() in objects_on_stack_chain:
+				free_soon = true
+				collision_points.append($MissleA2D/RC4.get_collision_point())
 		
 		
-		position += velocity * delta
+		add_constant_central_force(1000000 * Vector2(cos(rotation), sin(rotation)).normalized())
+		#position += velocity * delta
 		age += delta
 		#if free_soon:
 		#	free_count += delta
@@ -93,19 +111,21 @@ func get_data():
 	return missle_data
 
 func explode():
+	print("ran")
 	#if not free_soon:
-	velocity = Vector2(0,0)
 	#scale *= later_scale
 	var explosion = preload("res://explosion.tscn").instantiate()
 	explosion.Explosion(later_scale*scale, global_position)
-	get_parent().add_child(explosion)
+	get_tree().root.get_node("Main").add_child(explosion)
 	
-	get_parent().delete_object(str(self), self)
+	#multiplayer stuff
+	#get_parent().delete_object(str(self), self)
+	objects_on_stack_chain.remove_at(objects_on_stack_chain.find(self))
 	queue_free()
 		#missle_data["scale"] = scale
 		#free_soon = true
 
-#non-melee aka projectile stuff---------------------------------------------------------------------
+
 func stack_ability(ability):
 	if stacked_ability.size() != 0:
 		for key in stacked_ability:
@@ -116,7 +136,8 @@ func stack_ability(ability):
 			else:
 				break
 	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
-	ability.Ability(global_position + 25 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	##ability.Ability(global_position + 25 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
+	ability.Ability(global_position + 25 * Vector2(cos(get_parent().rotation), sin(get_parent().rotation)).normalized(), get_parent().rotation, true)
 	ability.objects_on_stack_chain = objects_on_stack_chain
 	
 	#rn have it so projectiles don't stick to each other, they just spawn there
@@ -132,7 +153,47 @@ func stack_ability(ability):
 			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
 			 - PI/8.0 * ((stacked_ability.size()+1) % 2))
 			count += 1
+
+func showw(): #DW THIS WORKS STACKED_ABILITY != OBJECTS_ON_STACK_CHAIN
+	show()
+	#just goes down stack list so must be called from top
+	for key in stacked_ability:
+		stacked_ability[key].showw()
+func hidee():
+	hide()
+	#just goes down stack list so must be called from top
+	for key in stacked_ability:
+		stacked_ability[key].hidee()
+
+func activate():
+	$CollisionShape2D.disabled = false
+	$MissleA2D/CollisionShape2D.disabled = false
+	$MissleA2D/RC1.enabled = true
+	$MissleA2D/RC2.enabled = true
+	$MissleA2D/RC3.enabled = true
+	$MissleA2D/RC4.enabled = true
 	
+	var gP = get_parent().to_global(position)
+	var rot = get_parent().rotation + rotation
+	var main = get_tree().root.get_node("Main")
+	get_parent().remove_child(self)
+	main.add_child(self)
+	global_position = gP
+	rotation = rot
+	
+	show()
+	activated = true
+	for key in stacked_ability:
+		stacked_ability[key].activate()
+
+#2 so it doesn't "fail" to override Node2D's get_rotation() function
+func get_rotation2():
+	if not activated:
+		return get_parent().rotation
+	else:
+		return rotation
+
+#melee stuff---------------------------------------------------------------------
 func lose_ability(stringified_ability):
 	stacked_ability.erase(stringified_ability)
 
@@ -140,12 +201,12 @@ func lose_ability(stringified_ability):
 
 #collision handled either by this, or by Raycast in _process(delta)
 func area_entered(area):
-	if area in objects_on_stack_chain:
+	if area.get_parent() in objects_on_stack_chain:
 		return
-	if area is Missle and str(self) < str(area):
+	if area.get_parent() is Missle and str(self) < str(area):
 		explode()
-		area.explode()
-	
+		area.get_parent().explode()
+
 	
 func body_entered(body):
 	if body in objects_on_stack_chain:

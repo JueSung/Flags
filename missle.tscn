@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://uhecc5ndu8be"]
+[gd_scene load_steps=9 format=3 uid="uid://uhecc5ndu8be"]
 
 [ext_resource type="Script" path="res://missle.gd" id="1_mqax6"]
 [ext_resource type="Texture2D" uid="uid://b0jpm5q68bqnm" path="res://Sprites/Sketch_Missle.png" id="2_q0r8c"]
+[ext_resource type="Script" path="res://MissleA2D.gd" id="3_dqdp4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a6ibf"]
 size = Vector2(50, 20)
@@ -37,14 +38,21 @@ _data = {
 "Sketch_missle_spin": SubResource("Animation_1a0h8")
 }
 
-[node name="Missle" type="Area2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m6gf5"]
+size = Vector2(52, 22)
+
+[node name="Missle" type="RigidBody2D"]
+disable_mode = 1
+mass = 1000.0
+gravity_scale = 0.0
+constant_torque = 100.0
 script = ExtResource("1_mqax6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_a6ibf")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-rotation = 5.02667
+rotation = -1.25652
 scale = Vector2(0.05, 0.05)
 sprite_frames = SubResource("SpriteFrames_u5j7i")
 animation = &"Missle"
@@ -54,12 +62,28 @@ libraries = {
 "": SubResource("AnimationLibrary_vt1j4")
 }
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="MissleA2D" type="Area2D" parent="."]
+script = ExtResource("3_dqdp4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MissleA2D"]
+shape = SubResource("RectangleShape2D_m6gf5")
+
+[node name="RC1" type="RayCast2D" parent="MissleA2D"]
 position = Vector2(25, -10)
 target_position = Vector2(100, 0)
 collide_with_areas = true
 
-[node name="RayCast2D2" type="RayCast2D" parent="."]
+[node name="RC2" type="RayCast2D" parent="MissleA2D"]
 position = Vector2(25, 10)
+target_position = Vector2(100, 0)
+collide_with_areas = true
+
+[node name="RC3" type="RayCast2D" parent="MissleA2D"]
+position = Vector2(-25, -10)
+target_position = Vector2(100, 0)
+collide_with_areas = true
+
+[node name="RC4" type="RayCast2D" parent="MissleA2D"]
+position = Vector2(-25, 10)
 target_position = Vector2(100, 0)
 collide_with_areas = true

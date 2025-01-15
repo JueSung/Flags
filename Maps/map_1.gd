@@ -61,6 +61,7 @@ func _ready():
 func make_platform(x,y,pos,rot,linear_velocity, breakable):
 	var p = platform_scene.instantiate()
 	p.Platform(x,y,pos,rot,linear_velocity, breakable)
+	p.freeze = true
 	get_parent().add_child(p)
 
 

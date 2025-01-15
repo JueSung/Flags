@@ -13,6 +13,7 @@ var position_offset #based on parent to get right outside range
 
 var stacked #whether parent is player weapon or another ability
 var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't react with
+var activated #explained in platform
 
 #for sketch stuff:
 #front section 109 pixels
@@ -35,6 +36,11 @@ func Ability(global_positionn_but_actually_position_offset, rotationn, stackedd)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$CollisionShape2D.disabled = true
+	hide()
+	activated = false
+	
+	
 	laser_data["type"] = "laser"
 	laser_data["position"] = position
 	laser_data["scale"] = scale
@@ -57,38 +63,39 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if get_tree().root.get_node("Main").my_ID == 1:
-		age += delta
-		if (age >= 2.5 and not full):
-			#SHABLAM
-			full = true
-			
-			$CollisionShape2D.scale.y = 7
-			if not stacked:
-				get_parent().set_rotational_resistance(ROTATIONAL_RESISTANCE)
-			
-			#$AnimatedSprite2D1.show()
-			#$AnimatedSprite2D2.show()
-			#$AnimatedSprite2D3.show()
-			
-			for i in range(len(objects_touching)):
-				##if objects_touching[i] in objects_on_stack_chain:
-				##	print("ran")
-				##	continue
-				if objects_touching[i] is Missle:
-					objects_touching[i].explode()
-				#elif objects_touching[i] is Platform:
-				#	objects_touching[i].queue_free()
-				elif objects_touching[i] is Player: ##and objects_touching[i] != get_parent().get_parent():
-					objects_touching[i].die()
-				elif objects_touching[i] is Platform:
-					objects_touching[i].add_heat_source()
-			
-		elif age >= life_time:
-			die()
+		if activated:
+			age += delta
+			if (age >= 2.5 and not full):
+				#SHABLAM
+				full = true
+				
+				$CollisionShape2D.scale.y = 7
+				if not stacked:
+					get_parent().set_rotational_resistance(ROTATIONAL_RESISTANCE)
+				
+				#$AnimatedSprite2D1.show()
+				#$AnimatedSprite2D2.show()
+				#$AnimatedSprite2D3.show()
+				
+				for i in range(len(objects_touching)):
+					##if objects_touching[i] in objects_on_stack_chain:
+					##	print("ran")
+					##	continue
+					if objects_touching[i] is Missle:
+						objects_touching[i].explode()
+					#elif objects_touching[i] is Platform:
+					#	objects_touching[i].queue_free()
+					elif objects_touching[i] is Player: ##and objects_touching[i] != get_parent().get_parent():
+						objects_touching[i].die()
+					elif objects_touching[i] is Platform:
+						objects_touching[i].add_heat_source()
+				
+			elif age >= life_time:
+				die()
 		
 		# Define the start and end points for the raycast
-		var start_point = get_parent().global_position + position_offset.length() * Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
-		var end_point = start_point + Vector2(cos(get_parent().rotation + rotation),sin(get_parent().rotation + rotation)) * max_len #start_point + direction * max laser len
+		var start_point = get_parent().global_position + position_offset.length() * Vector2(cos(get_parent().get_rotation2()), sin(get_parent().get_rotation2()))
+		var end_point = start_point + Vector2(cos(get_parent().get_rotation2() + rotation),sin(get_parent().get_rotation2() + rotation)) * max_len #start_point + direction * max laser len
 		
 		# Perform the raycast
 		var ray_param = PhysicsRayQueryParameters2D.create(start_point, end_point, collision_mask, [self, get_parent(), get_parent().get_parent()])
@@ -121,8 +128,8 @@ func _process(delta):
 			#print(abs((sprite_len/2.0 - front_len) * ((distance - (front_len+end_len)) /mid_len) - (distance / 2.0 - front_len) - (distance / 2.0 - end_len) - (sprite_len/2.0 - end_len) * ((distance - (front_len+end_len))/mid_len)) <= 0.001)
 			#-------------------------
 			##if override_collision_position == Vector2(-500000, -500000):
-			#$CollisionShape2D.position = get_parent().to_local(Vector2(distance/2 * cos(get_parent().rotation + rotation) + start_point.x, distance/2 * sin(get_parent().rotation + rotation) + start_point.y))
-			$CollisionShape2D.global_position = start_point + distance / 2.0 * Vector2(cos(get_parent().rotation + rotation),sin(get_parent().rotation + rotation))
+			#$CollisionShape2D.position = get_parent().to_local(Vector2(distance/2 * cos(get_parent().get_rotation2() + rotation) + start_point.x, distance/2 * sin(get_parent().get_rotation2() + rotation) + start_point.y))
+			$CollisionShape2D.global_position = start_point + distance / 2.0 * Vector2(cos(get_parent().get_rotation2() + rotation),sin(get_parent().get_rotation2() + rotation))
 			$CollisionShape2D.scale.x = distance
 				##override_collision_position = Vector2(-500000,-500000)
 				
@@ -131,8 +138,8 @@ func _process(delta):
 			$AnimatedSprite2D3.position += $CollisionShape2D.position
 		else:
 			# No collision, laser reaches maximum length
-			#$CollisionShape2D.position = get_parent().to_local(Vector2(max_len/2 * cos(get_parent().rotation + rotation) + start_point.x, max_len/2 * sin(get_parent().rotation + rotation) + start_point.y))
-			$CollisionShape2D.global_position = start_point + max_len / 2.0 * Vector2(cos(get_parent().rotation + rotation),sin(get_parent().rotation + rotation))
+			#$CollisionShape2D.position = get_parent().to_local(Vector2(max_len/2 * cos(get_parent().get_rotation2() + rotation) + start_point.x, max_len/2 * sin(get_parent().get_rotation2() + rotation) + start_point.y))
+			$CollisionShape2D.global_position = start_point + max_len / 2.0 * Vector2(cos(get_parent().get_rotation2() + rotation),sin(get_parent().get_rotation2() + rotation))
 			
 			$CollisionShape2D.scale.x = max_len
 			$AnimatedSprite2D1.position.x = sprite_len/2.0 - max_len/2.0# + sprite_offset
@@ -147,6 +154,24 @@ func _process(delta):
 		
 		laser_data["position"] = position
 		laser_data["scale"] = scale
+
+
+#stack stuff
+func showw():
+	show()
+func hidee():
+	hide()
+
+func activate():
+	$CollisionShape2D.disabled = false
+	show()
+	
+	activated = true
+	
+	#doesn't need to activate() others bc its leaf of stack tree
+
+#--------------------------
+
 
 #if multiple melee weapons on self's parent, then each are offset in rotation relative to parent based on some calculation	
 func set_rotation_offset(offset):
