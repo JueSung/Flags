@@ -1,11 +1,11 @@
 res://main.tscn
-res://Ability.gd
-res://missle.gd
 res://platform.tscn
 res://missle.tscn
 res://laser.tscn
 res://player.tscn
+res://ability_spawner.tscn
+res://ability_item.tscn
 res://platform.gd
+res://missle.gd
+res://explosion.gd
 res://laser.gd
-res://ExtendedRange.gd
-res://MissleA2D.gd

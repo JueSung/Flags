@@ -183,6 +183,8 @@ func get_data():
 	return laser_data
 
 func die():
+	
+	
 	get_parent().lose_ability(str(self))
 	queue_free()
 	
@@ -213,7 +215,7 @@ func body_entered(body):
 		if body is Platform:
 			body.add_heat_source()
 		elif body is Player and body != get_parent().get_parent():
-			body.die()
+			body.add_heat_source()
 	else:
 		if body is Platform or body is Player and body not in objects_on_stack_chain:
 			objects_touching.append(body)

@@ -3,15 +3,17 @@ class_name Player
 
 var my_ID
 
-const SPEED = 420
-const JUMP_VELOCITY = -600.0
+# Get the gravity from the project settings to be synced with RigidBody nodes.
+var gravity = 1470 * 1.5
+
+const SPEED = 420 * 1.5
+var JUMP_VELOCITY = -1 * sqrt(gravity * 2 * 240)
 
 var AIR_FRICTION = 420
 
 var surface = null#NEW
 
-# Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = 1470
+
 
 #user inputs
 var left = false
@@ -56,7 +58,6 @@ func _physics_process(delta):
 		#else:
 		#	surface = null
 		
-		
 		# Add the gravity.
 		if not is_on_floor():#dum stuff && not is_on_ceiling() and not is_on_wall():#newsurface == null:
 			#gravity increases by 50% when falling to make jumping feel better
@@ -76,6 +77,10 @@ func _physics_process(delta):
 			#	up_direction = -1 * get_wall_normal()
 			velocity.y = JUMP_VELOCITY
 			#velocity.y = JUMP_VELOCITY
+		
+		#when space stops being pressed, stops moving up on jump
+		elif not space and not is_on_floor() and velocity.y < 0:
+			velocity.y -= (5 * velocity.y) * delta
 
 
 		# Get the input direction and handle the movement/deceleration.
@@ -101,7 +106,9 @@ func _physics_process(delta):
 			$AnimatedSprite2D.stop()
 			
 			#way to slow down velocity when not inputs not right or left
-			velocity.x = move_toward(velocity.x, 0, SPEED)
+			#going from in velocity.x direction decreasing speed til 0, rate of 20 * SPEED * delta per frame aka 20 * SPEED per second
+			#aka to 0 in .05 seconds
+			velocity.x = move_toward(velocity.x, 0, 20 * SPEED * delta)
 			#newvelocity.y = move_toward(velocity.y, 0, SPEED)
 		
 		toastedness += heat_sources * delta

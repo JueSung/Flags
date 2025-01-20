@@ -25,3 +25,7 @@ script = ExtResource("2_4e2yb")
 position = Vector2(-0.5, 0.85)
 rotation = 0.00523599
 texture = ExtResource("2_xq1qm")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0

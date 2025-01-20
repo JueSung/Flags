@@ -133,37 +133,6 @@ func _process(delta):
 			left_queued_ability = {}
 			for i in range(len(left_ability)):
 				test(left_ability[i], left_queued_ability)
-			##test(left_ability, left_queued_ability)
-			"""var stacking_next_on = null
-			for i in range(len(left_ability)):
-				var ability = scenes[left_ability[i]].instantiate()
-				if stacking_next_on == null:
-					if not ability.IS_MELEE:
-						stacking_next_on = ability
-				else:
-					stacking_next_on.stack_ability(ability)
-					continue
-				#When calling .Ability(pos,rot, stacked), the parent must make the position right outside its hitbox area, 
-				#and so the instantiated object will adjust the position based on its center so it remains outside
-				#"stacked" is whether the ability's parent is another ability (true) or the player's weapon_slot (false)
-				ability.Ability(global_position+30 * Vector2(cos(rotation),sin(rotation)).normalized(), rotation, false)
-				
-				if left_ability[i] in MELEE_ABILITIES:
-					add_child(ability)
-					left_active_ability[str(ability)] = ability
-					
-					var count = 0
-					for key in left_active_ability:
-						left_active_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
-						 - PI/8.0 * ((left_active_ability.size()+1) % 2))
-						count += 1
-				else:
-					get_parent().get_parent().add_child(ability)"""
-			
-			#var missle = preload("res://missle.tscn").instantiate()
-			#missle.Ability(global_position, rotation)
-			
-			#get_parent().get_parent().add_child(missle)
 		else:
 			for a in left_queued_ability:
 				left_queued_ability[a].hidee()
@@ -195,29 +164,6 @@ func _process(delta):
 			right_queued_ability = {}
 			for i in range(len(right_ability)):
 				test(right_ability[i], right_queued_ability)
-			##test(right_ability, right_active_ability)
-			"""var stacking_next_on = null #used if stacking abilities on projectile
-			for i in range(len(right_ability)):
-				var ability = scenes[right_ability[i]].instantiate()
-				if stacking_next_on == null:
-					if not ability.IS_MELEE:
-						stacking_next_on = ability
-				else:
-					stacking_next_on.stack_ability(ability)
-					continue
-				ability.Ability(global_position +30 * Vector2(cos(rotation),sin(rotation)).normalized(), rotation, false)
-				
-				if right_ability[i] in MELEE_ABILITIES:
-					add_child(ability)
-					right_active_ability[str(ability)] = ability
-					
-					var count = 0
-					for key in right_active_ability:
-						right_active_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
-						 - PI/8.0 * ((right_active_ability.size()+1) % 2))
-						count += 1
-				else:
-					get_parent().get_parent().add_child(ability)"""
 		else:
 			for a in right_queued_ability:
 				right_queued_ability[a].hidee()
@@ -247,39 +193,6 @@ func _process(delta):
 			third_queued_ability = {}
 			for i in range(len(third_ability)):
 				test(third_ability[i], third_queued_ability)
-			##test(third_ability, third_queued_ability)
-			
-			"""var stacking_next_on = null
-			for i in range(len(third_ability)):
-				var ability = scenes[third_ability[i]].instantiate()
-				if stacking_next_on == null:
-					if not ability.IS_MELEE:
-						stacking_next_on = ability
-				else:
-					stacking_next_on.stack_ability(ability)
-					continue
-				
-				ability.Ability(global_position+30 * Vector2(cos(rotation),sin(rotation)).normalized(), rotation, false)
-				
-				if third_ability[i] in MELEE_ABILITIES:
-					#add must come before adding to map because reference changes after add_child()
-					add_child(ability)
-					third_active_ability[str(ability)] = ability
-					var count = 0
-					for key in third_active_ability:
-						third_active_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
-						 - PI/8.0 * ((third_active_ability.size()+1) % 2))
-						count += 1
-					"""
-					
-				##	"""if current_ability == null:
-				##		current_ability = ability
-				##		add_child(ability)
-				##		weapon_data["current_ability"] = current_ability.get_data()
-				##	else:
-				##		current_ability.stack(ability)"""
-				##else:
-				##	get_parent().get_parent().add_child(ability)
 			
 			#if current_ability == null:
 				#discharge
@@ -319,10 +232,10 @@ func _process(delta):
 			elif third_charging:
 				third_charging = false
 				for key in potential_ability_gains:
-					if not potential_ability_gains[key].ability_name in MELEE_ABILITIES and (len(right_ability) > 0 and right_ability[-1] in MELEE_ABILITIES):
+					if not potential_ability_gains[key].ability_name in MELEE_ABILITIES and (len(third_ability) > 0 and third_ability[-1] in MELEE_ABILITIES):
 						continue
 					third_ability.append(potential_ability_gains[key].ability_name)
-					test(potential_ability_gains[key].ability_name, third_active_ability)
+					test(potential_ability_gains[key].ability_name, third_queued_ability)
 					potential_ability_gains[key].queue_free()
 					potential_ability_gains.erase(str(potential_ability_gains[key]))
 		#----------------------------------------------------------------------------------------------
@@ -350,7 +263,6 @@ func test(which_ability, which_queued_ability):
 			if not which_queued_ability[key].IS_MELEE:
 				which_queued_ability[key].stack_ability(ability)
 				return
-	
 	if which_ability in MELEE_ABILITIES:
 		ability.Ability(global_position + 30 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, false)
 		add_child(ability)

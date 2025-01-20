@@ -111,7 +111,6 @@ func get_data():
 	return missle_data
 
 func explode():
-	print("ran")
 	#if not free_soon:
 	#scale *= later_scale
 	var explosion = preload("res://explosion.tscn").instantiate()
@@ -134,7 +133,9 @@ func stack_ability(ability):
 				stacked_ability[key].stack_ability(ability)
 				return
 			else:
-				break
+				if not ability.IS_MELEE:
+					print("UH OH WE HAE PROBLEMA")
+					break
 	#only runs if stacked_ability.size() == 0 or only stacked ability(s) are melee. Then ability must be melee
 	##ability.Ability(global_position + 25 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, true)
 	ability.Ability(global_position + 25 * Vector2(cos(get_parent().rotation), sin(get_parent().rotation)).normalized(), get_parent().rotation, true)
@@ -213,13 +214,13 @@ func body_entered(body):
 		return
 	if body is Platform:
 		explode()
-		#if body.BREAKABLE:
-			#get_parent().delete_object(str(body), body)
-	elif body.get_parent() is Map:
-		explode()
+	#elif body.get_parent() is Map:
+	#	explode()
 	elif body is Player:
 		explode()
-		body.die()
+	elif body is Missle and str(self) < str(body):
+		explode()
+		body.explode()
 	#laser takes care of missle-laser collision
 	
 

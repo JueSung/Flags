@@ -119,6 +119,7 @@ func update_clients_object_game_state(objects_dataa):
 func client_delete_objects(objects_to_be_deletedd):
 	# "o" var is stringified reference name => key in objects & objects_data
 	for o in objects_to_be_deletedd:
+		break
 		objects[o].queue_free()
 		objects.erase(o)
 		objects_data.erase(o)

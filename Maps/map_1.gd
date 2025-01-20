@@ -15,6 +15,10 @@ func _ready():
 		make_platform(1920,30,Vector2(960,1080), 0, Vector2(0,0), false)
 		make_platform(60,1080,Vector2(1920,525),0,Vector2(0,0), false)
 		
+		var ability_spawner = preload("res://ability_spawner.tscn").instantiate()
+		ability_spawner.Ability_Spawner(Vector2(400,400), PI/2.0)
+		get_tree().root.get_node("Main").add_child(ability_spawner)
+		
 		var ability_item = preload("res://ability_item.tscn").instantiate()
 		ability_item.AbilityItem("Laser", Vector2(800, 100))
 		get_parent().add_child(ability_item)
@@ -28,8 +32,26 @@ func _ready():
 		ability_item = preload("res://ability_item.tscn").instantiate()
 		ability_item.AbilityItem("Missle", Vector2(400, 100))
 		get_parent().add_child(ability_item)
+		
+		"""
+		for i in range(12):
+			ability_item = preload("res://ability_item.tscn").instantiate()
+			ability_item.AbilityItem("Laser", Vector2(400, 100))
+			get_parent().add_child(ability_item)
+		for i in range(12):
+			ability_item = preload("res://ability_item.tscn").instantiate()
+			ability_item.AbilityItem("Missle", Vector2(400, 100))
+			get_parent().add_child(ability_item)
+		"""
+		
 		ability_item = preload("res://ability_item.tscn").instantiate()
-		ability_item.AbilityItem("Platform", Vector2(400, 100))
+		ability_item.AbilityItem("Platform", Vector2(1200, 100))
+		get_parent().add_child(ability_item)
+		ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Platform", Vector2(1200, 100))
+		get_parent().add_child(ability_item)
+		ability_item = preload("res://ability_item.tscn").instantiate()
+		ability_item.AbilityItem("Platform", Vector2(1200, 100))
 		get_parent().add_child(ability_item)
 
 

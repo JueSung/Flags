@@ -25,16 +25,21 @@ func _process(delta):
 		age += delta
 		$Label.text = str(age)
 
-
 func area_entered(area):
-	if area is Missle:
-		area.explode()
+	pass
 	
 func body_entered(body):
 	if body is Platform:
 		if body.BREAKABLE:
-			pass
-			get_parent().delete_object(str(body), body)
-		body.temp += 1
+			body.apply_impulse(2000000 * Vector2(body.position.x - position.x, body.position.y - position.y).normalized())
+			body.temp += 1
+			print("ran")
+			##get_parent().delete_object(str(body), body)
 	elif body is Player:
-		body.die()
+		body.velocity = 1800 * Vector2(body.position.x - position.x, body.position.y - position.y).normalized()
+		body.toastedness += 1
+		##body.die()
+	elif body is Missle:
+		#dunno if impulse even does anything since it explodes immediately
+		body.apply_impulse(2000000 * Vector2(body.position.x - position.x, body.position.y - position.y).normalized())
+		body.explode()

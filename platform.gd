@@ -9,8 +9,13 @@ var platform_data=  {}
 
 var heat_sources = 0 #num of things that are heating up platform
 var temp = 0 #incr in temp = heat sources per second
-var TEMPTOLERANCE = 5
+
+#tolerance for on fire
+var TEMPTOLERANCE = 10
 var on_fire = false
+#tolerance for platform destruction
+var TEMPTOLERANCE2 = 20
+
 var objects_touching = []
 
 var stacked_ability = {}
@@ -73,18 +78,28 @@ func _ready():
 func _process(delta):
 	if get_tree().root.get_node("Main").my_ID == 1 and activated:
 		temp += heat_sources * delta
+		$Label.text = str(temp)
 		if temp > TEMPTOLERANCE and not on_fire:
 			print("platfrom on fire")
 			on_fire = true
+			heat_sources += 1
 			
-			for body in objects_touching:
-				body.add_heat_source()
-			objects_touching = []
-			
+			for i in range(len(objects_touching)):
+				objects_touching[i].add_heat_source()
+			##objects_touching = []
+		#dies - on fire for too long
+		if temp > TEMPTOLERANCE2:
+				die()
 			
 		platform_data["position"] = position
 		platform_data["rotation"] = rotation
 
+func die():
+	#assuming already on fire
+	for i in range(len(objects_touching)):
+		if objects_touching[i] != null:
+			objects_touching[i].remove_heat_source()
+	queue_free()
 
 func stack_ability(ability):
 	if stacked_ability.size() != 0:
@@ -160,18 +175,20 @@ func get_data():
 	return platform_data
 
 func add_heat_source():
-	heat_sources += 1
+	if BREAKABLE:
+		heat_sources += 1
 func remove_heat_source():
-	heat_sources -= 1
+	if heat_sources > 0:
+		heat_sources -= 1
 
 func body_entered(body):
-	if body is Player:
+	if body is Player || body is Platform:
 		if on_fire:
 			body.add_heat_source()
 		else:
 			objects_touching.append(body)
 func body_exited(body):
-	if body is Player:
+	if body is Player || body is Platform:
 		if on_fire:
 			body.remove_heat_source()
 		else:
