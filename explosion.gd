@@ -4,6 +4,8 @@ class_name Explosion
 var age
 var LIFETIME = 1 #number of seconds alive
 
+var data
+
 func Explosion(scalee, global_positionn):
 	scale = scalee
 	global_position = global_positionn
@@ -14,16 +16,30 @@ func _ready():
 		connect("area_entered", area_entered)
 		connect("body_entered", body_entered)
 		age = 0
+		
+		data = {
+			"global_position" : global_position,
+			"rotation" : rotation
+			#animation stuff
+		}
+		
+		get_tree().root.get_node("Main").add_child2(self)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if get_parent().my_ID == 1:
 		if age > LIFETIME:
-			queue_free()
+			die()
 		
 		age += delta
 		$Label.text = str(age)
+
+func die():
+	get_parent().delete_object(str(self), self)
+	queue_free()
+
+
 
 func area_entered(area):
 	pass
@@ -43,3 +59,10 @@ func body_entered(body):
 		#dunno if impulse even does anything since it explodes immediately
 		body.apply_impulse(2000000 * Vector2(body.position.x - position.x, body.position.y - position.y).normalized())
 		body.explode()
+
+
+func get_data():
+	return data
+func update_data(dataa):
+	global_position = dataa[global_position]
+	rotation = dataa[rotation]

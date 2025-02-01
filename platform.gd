@@ -99,6 +99,7 @@ func die():
 	for i in range(len(objects_touching)):
 		if objects_touching[i] != null:
 			objects_touching[i].remove_heat_source()
+	
 	queue_free()
 
 func stack_ability(ability):

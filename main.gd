@@ -95,7 +95,7 @@ func update_clients_player_game_state(id, player_data):
 @rpc ("any_peer", "reliable")
 func update_clients_object_game_state(objects_dataa):
 	for key in objects_dataa:
-		if key not in objects: #then it will "type" key in its object_data
+		if key not in objects: #then it will "type" key in its object_data, its a new object that needs to be created
 			var object
 			match objects_dataa[key]["type"]:
 				"platform":
@@ -106,6 +106,15 @@ func update_clients_object_game_state(objects_dataa):
 					object = preload("res://missle.tscn").instantiate()
 					var d = objects_dataa[key]
 					object.position = d["position"]
+				"Ability_Spawner":
+					object = preload("res://Ability_spawner.tscn").instantiate()
+					var d = objects_dataa[key]
+					object.Ability_Spawner(d["global_position"], d["rotation"])
+				"Ability_item":
+					object = preload("res://Ability_item.tscn").instantiate()
+					var d = objects_dataa[key]
+					object.AbilityItem(d["ability_name"], d["global_position"])
+					object.rotation = d["rotation"]
 				_:
 					print("unknown dun dun dunnnnn!!!")
 					continue
@@ -119,10 +128,9 @@ func update_clients_object_game_state(objects_dataa):
 func client_delete_objects(objects_to_be_deletedd):
 	# "o" var is stringified reference name => key in objects & objects_data
 	for o in objects_to_be_deletedd:
-		break
 		objects[o].queue_free()
 		objects.erase(o)
-		objects_data.erase(o)
+		#objects_data.erase(o) #what is ever added to objects_data on non-hosts?
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -180,15 +188,18 @@ func _process(_delta):
 			objects_data[object] = objects[object].get_data()
 		rpc("update_clients_object_game_state", objects_data)
 		objects_data = {}
-		rpc("client_delete_objects", objects_to_be_deleted)
+		rpc("client_delete_objects", objects_to_be_deleted) #tell client mains to delete nodes in this map
 		objects_to_be_deleted = []
 
 
-#game stuff
+#called by objects in _ready after all_child had been called on them, so they add themselves to main so main can send to clients
+func add_child2(reference):
+	objects[str(reference)] = reference
+	
 
+#handles removing object from main knowledge for multiplayer stuff, but queue_free() handled by object itself
 #string reference different than reference depending if server or not
 func delete_object(string_reference, reference):
 	objects.erase(string_reference)
 	objects_data.erase(string_reference)
-	reference.queue_free()
 	objects_to_be_deleted.append(string_reference)

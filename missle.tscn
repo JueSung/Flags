@@ -52,7 +52,6 @@ script = ExtResource("1_mqax6")
 shape = SubResource("RectangleShape2D_a6ibf")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-rotation = -1.25652
 scale = Vector2(0.05, 0.05)
 sprite_frames = SubResource("SpriteFrames_u5j7i")
 animation = &"Missle"

@@ -92,7 +92,7 @@ func _physics_process(delta):
 			direction -= 1
 		
 		if direction:
-			velocity.x = direction * SPEED
+			velocity.x = move_toward(velocity.x, direction * SPEED, SPEED * delta * 30)
 			#if surface:
 			#	velocity = Vector2(surface.get_normal().y * -1, surface.get_normal().x) * direction * SPEED
 			#else:

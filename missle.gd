@@ -7,7 +7,7 @@ var later_scale = 3.5 #related to scale
 var free_soon = false
 var collision_points = []
 
-var raycasts = [$MissleA2D/RC1, $MissleA2D/RC2, $MissleA2D/RC3, $MissleA2D/RC4]
+var raycasts
 
 var age
 
@@ -41,6 +41,9 @@ func _ready():
 		objects_on_stack_chain.append(self)
 		objects_on_stack_chain.append($MissleA2D)
 		
+		raycasts = [$MissleA2D/RC1, $MissleA2D/RC2, $MissleA2D/RC3, $MissleA2D/RC4]
+		
+		
 		missle_data["type"] = "missle"
 		missle_data["position"] = position
 		
@@ -52,7 +55,7 @@ func _ready():
 		$MissleA2D.connect("area_entered", area_entered)
 		age = 0
 	
-	$AnimationPlayer.play()
+	#$AnimationPlayer.play()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
@@ -115,11 +118,12 @@ func explode():
 	#scale *= later_scale
 	var explosion = preload("res://explosion.tscn").instantiate()
 	explosion.Explosion(later_scale*scale, global_position)
-	get_tree().root.get_node("Main").add_child(explosion)
+	get_tree().root.get_node("Main").call_deferred("add_child", explosion) #add_child
 	
 	#multiplayer stuff
 	#get_parent().delete_object(str(self), self)
-	objects_on_stack_chain.remove_at(objects_on_stack_chain.find(self))
+	if objects_on_stack_chain.find(self) != -1:
+		objects_on_stack_chain.remove_at(objects_on_stack_chain.find(self))
 	queue_free()
 		#missle_data["scale"] = scale
 		#free_soon = true

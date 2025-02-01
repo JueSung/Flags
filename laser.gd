@@ -44,6 +44,11 @@ func _ready():
 	laser_data["type"] = "laser"
 	laser_data["position"] = position
 	laser_data["scale"] = scale
+	laser_data["visible"] = visible
+	laser_data["CollisionShape2D_disabled"] = $CollisionShape2D.disabled
+	
+	laser_data["CollisionShape2D_position"] = $CollisionShape2D.position
+	laser_data["CollisionShape2D_scale"] = $CollisionShape2D.scale
 	$AnimatedSprite2D1.hide()
 	$AnimatedSprite2D2.hide()
 	$AnimatedSprite2D3.hide()
@@ -58,6 +63,8 @@ func _ready():
 		connect("body_exited", body_exited)
 		
 		position_offset = position_offset - get_parent().global_position
+		
+		get_parent().add_child2(self)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -154,6 +161,12 @@ func _process(delta):
 		
 		laser_data["position"] = position
 		laser_data["scale"] = scale
+		laser_data["visible"] = visible
+		laser_data["CollisionShape2D.disabled"] = $CollisionShape2D.disabled
+		
+		laser_data["CollisionShape2D_position"] = $CollisionShape2D.position
+		laser_data["CollisionShape2D_scale"] = $CollisionShape2D.scale
+		
 
 
 #stack stuff
@@ -236,6 +249,10 @@ func body_exited(body):
 
 
 func update_data(laser_dataa):
-	$CollisionShape2D.position = laser_dataa["position"]
-	$CollisionShape2D.scale = laser_dataa["scale"]
+	position = laser_dataa["position"]
+	scale = laser_dataa["scale"]
+	$CollisionShape2D.position = laser_dataa["CollisionShape2D_position"]
+	$CollisionShape2D.scale = laser_dataa["CollisionShape2D_scale"]
+	$CollisionShape2D.disabled = laser_dataa["CollisionShape2D_disabled"]
+	laser_data["visible"] = visible
 	

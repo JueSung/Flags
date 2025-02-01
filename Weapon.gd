@@ -60,18 +60,28 @@ var weapon_data # =  {
 #	'current_ability' = current_ability	
 #}
 
-var objects_to_be_deleted = []
 
+#objects that are abilities whose parent is weapon, info needs to be transmitted multiplayer
+var multiplayer_objects = {}
+var multiplayer_objects_data = {}
+var objects_to_be_deleted = []
+#--------------------------------------------------------------
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	weapon_data = {}
 	pre_pos = position
 	pre_rot = rotation
 	if get_parent().get_parent().my_ID == 1:
 		connect("body_entered", body_entered)
 		connect("body_exited", body_exited)
-	
+		
+		
+		weapon_data = {
+			"position" : position,
+			"rotation" : rotation,
+			"multiplayer_objects_data" : multiplayer_objects_data,
+			"objects_to_be_deleted" : objects_to_be_deleted
+		}
 	
 	MELEE_ABILITIES = get_parent().get_parent().MELEE_ABILITIES
 	#get_tree().root.get_node("Main").add_child(preload("res://missle_2.tscn").instantiate())
@@ -80,7 +90,6 @@ func _ready():
 
 func _process(delta):
 	if get_parent().get_parent().my_ID == 1:
-		weapon_data = {}
 		#rotation calculation
 		var target_rot = 0
 		if get_parent().mouse_position.x - global_position.x != 0:
@@ -217,7 +226,7 @@ func _process(delta):
 						continue#don't stack projectile on melee
 					left_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, left_queued_ability)
-					potential_ability_gains[key].queue_free()
+					potential_ability_gains[key].die()
 					potential_ability_gains.erase(str(potential_ability_gains[key]))
 				#potential_ability_gains = {}
 			elif right_charging:
@@ -227,7 +236,7 @@ func _process(delta):
 						continue
 					right_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, right_queued_ability)
-					potential_ability_gains[key].queue_free()
+					potential_ability_gains[key].die()
 					potential_ability_gains.erase(str(potential_ability_gains[key]))
 			elif third_charging:
 				third_charging = false
@@ -236,7 +245,7 @@ func _process(delta):
 						continue
 					third_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, third_queued_ability)
-					potential_ability_gains[key].queue_free()
+					potential_ability_gains[key].die()
 					potential_ability_gains.erase(str(potential_ability_gains[key]))
 		#----------------------------------------------------------------------------------------------
 			
@@ -245,9 +254,9 @@ func _process(delta):
 			weapon_data["position"] = position
 		if abs(rotation - pre_rot) >= ROT_DELTA_TOLERANCE:
 			weapon_data["rotation"] = rotation
-		if current_ability != null:
-			weapon_data["current_ability"] = current_ability.get_data()
 		
+		for o in multiplayer_objects:
+			multiplayer_objects_data[o] = multiplayer_objects[o].get_data()
 		
 		pre_pos = position
 		pre_rot = rotation
@@ -307,6 +316,12 @@ func lose_ability(stringified_reference):
 	else:
 		print("USER DEFINED ERROR: melee ability being destroyed but not found in active ability maps")
 	
+	#multiplayer-------------------------------------------
+	multiplayer_objects.erase(stringified_reference)
+	multiplayer_objects_data.erase(stringified_reference)
+	objects_to_be_deleted.append(stringified_reference)
+	#-----------------------------------------------------
+	
 	#CHANGE will need to update based on what is rotational resistance affected by when multiple abilities present
 	if left_active_ability.is_empty() and right_active_ability.is_empty() and third_active_ability.is_empty():
 		rotational_resistance = 0
@@ -315,6 +330,10 @@ func lose_ability(stringified_reference):
 	#current_ability = null
 	#rotational_resistance = 0
 	#weapon_data["objects_to_be_destroyed"] = 1
+	
+func add_child2(reference):
+	multiplayer_objects[str(reference)] = reference
+	multiplayer_objects_data[str(reference)] = reference.get_data()
 	
 #2 for not overriding node2d's get_rotation() function, necessary because if melee attatched to projectile while
 #child of weapon then they need to return weapon's rotation
@@ -328,15 +347,25 @@ func update_game_state(weapon_dataa):
 				position = weapon_dataa[key]
 			"rotation":
 				rotation = weapon_dataa[key]
-			"current_ability": #instantiate ability
-				if current_ability == null:
-					match weapon_dataa[key]["type"]:
-						"laser":
-							current_ability = preload("res://laser.tscn").instantiate()
-							current_ability.update_data(weapon_dataa[key])
-							add_child(current_ability)
-				else:
-					current_ability.update_data(weapon_dataa[key])
-			"objects_to_be_destroyed": #only used right now for current ability, if multiple objects need to rewrite, also look at last line of lose_ability()
-				pass
-				#lose_ability()
+			"multiplayer_objects_data":
+				for o in weapon_dataa[key]:
+					if not multiplayer_objects.has(o):
+						print(weapon_dataa[key])
+						var object
+						match weapon_dataa[key][o]["type"]:
+							"laser":
+								object = preload("res://laser.tscn").instantiate()
+							_:
+								print("Weapon tries to instantiate non-existent ability?? Of type", weapon_dataa[key][o]["type"])
+								continue
+						print("Ran")
+						add_child(object)
+						multiplayer_objects[o] = object
+					
+					#runs either way		
+					multiplayer_objects[o].update_data(weapon_dataa[key][o])
+			"objects_to_be_deleted":
+				for i in range(len(weapon_dataa[key])):
+					print(multiplayer_objects)
+					multiplayer_objects[weapon_dataa[key][i]].queue_free()
+					multiplayer_objects.erase(weapon_dataa[key][i])
