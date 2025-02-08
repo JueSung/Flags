@@ -70,7 +70,8 @@ func _ready():
 		
 		position_offset = position_offset - get_parent().global_position
 		
-		get_parent().add_child2(str(self), self)
+		stringified_reference = str(self).substr(str(self).find(":")+1)
+		get_parent().add_child2(stringified_reference, self)
 	else:
 		get_parent().add_child2(stringified_reference, self)
 
@@ -207,7 +208,7 @@ func get_data():
 func die():
 	
 	
-	get_parent().lose_ability(str(self))
+	get_parent().lose_ability(str(self).substr(str(self).find(":")+1))
 	queue_free()
 	
 #--------------------------------------

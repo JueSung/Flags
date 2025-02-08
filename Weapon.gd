@@ -102,7 +102,10 @@ func _process(delta):
 			rotation += (int((abs(target_rot - rotation) <= PI))* 2 - 1) * (target_rot - rotation) / abs(target_rot - rotation) * 2 * PI / rotational_resistance * delta
 		rotation = fmod(rotation, 2 * PI) #keeps rotation between 0 and 2pi so doesn't spin infinitely
 		rotation -= get_parent().rotation
-		position = 60 * Vector2(cos(rotation), sin(rotation)).normalized()
+		position = 20 * Vector2(cos(rotation), sin(rotation)).normalized()
+		
+		if left_active_ability.is_empty() and right_active_ability.is_empty() and third_active_ability.is_empty():
+			rotational_resistance = 0
 		
 		left_cooldown_state += delta
 		if left_cooldown_state > 1:
@@ -124,7 +127,6 @@ func _process(delta):
 			for a in left_queued_ability:
 				left_queued_ability[a].showw()
 		elif left_charging:
-			
 			left_cooldown_state = 0
 			left_charging = false
 			#discharge ability
@@ -229,7 +231,7 @@ func _process(delta):
 					left_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, left_queued_ability)
 					potential_ability_gains[key].die()
-					potential_ability_gains.erase(str(potential_ability_gains[key]))
+					potential_ability_gains.erase(potential_ability_gains[key].stringified_reference)
 				#potential_ability_gains = {}
 			elif right_charging:
 				right_charging = false
@@ -239,7 +241,7 @@ func _process(delta):
 					right_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, right_queued_ability)
 					potential_ability_gains[key].die()
-					potential_ability_gains.erase(str(potential_ability_gains[key]))
+					potential_ability_gains.erase(potential_ability_gains[key].stringified_reference)
 			elif third_charging:
 				third_charging = false
 				for key in potential_ability_gains:
@@ -248,7 +250,7 @@ func _process(delta):
 					third_ability.append(potential_ability_gains[key].ability_name)
 					test(potential_ability_gains[key].ability_name, third_queued_ability)
 					potential_ability_gains[key].die()
-					potential_ability_gains.erase(str(potential_ability_gains[key]))
+					potential_ability_gains.erase(potential_ability_gains[key].stringified_reference)
 		#----------------------------------------------------------------------------------------------
 			
 		#multiplayer stuff
@@ -276,7 +278,7 @@ func test(which_ability, which_queued_ability):
 	if which_ability in MELEE_ABILITIES:
 		ability.Ability(global_position + 30 * Vector2(cos(rotation), sin(rotation)).normalized(), rotation, false)
 		add_child(ability)
-		which_queued_ability[str(ability)] = ability
+		which_queued_ability[ability.stringified_reference] = ability
 		
 		#add must come before adding to map because reference changes after add_child()
 		var count = 0
@@ -287,7 +289,7 @@ func test(which_ability, which_queued_ability):
 	else:
 		ability.Ability(global_position + 30* Vector2(cos(rotation), sin(rotation)).normalized(), rotation, false)
 		add_child(ability)
-		which_queued_ability[str(ability)] = ability
+		which_queued_ability[ability.stringified_reference] = ability
 		
 		"""if current_ability == null:
 			current_ability = ability
@@ -298,9 +300,9 @@ func test(which_ability, which_queued_ability):
 
 #---
 func body_entered(body):
-	potential_ability_gains[str(body)] = body
+	potential_ability_gains[body.stringified_reference] = body
 func body_exited(body):
-	potential_ability_gains.erase(str(body))
+	potential_ability_gains.erase(body.stringified_reference)
 
 func set_rotational_resistance(res):
 	rotational_resistance = res
@@ -384,6 +386,7 @@ func update_game_state(weapon_dataa):
 					if multiplayer_objects.has(weapon_dataa[key][i]):
 						multiplayer_objects[weapon_dataa[key][i]].queue_free()
 						multiplayer_objects.erase(weapon_dataa[key][i])
+						multiplayer_objects_data.erase(weapon_dataa[key][i])
 			#only used for reparenting projectiles to be part of main
 			"objects_to_be_reparented":
 				for i in range(len(weapon_dataa[key])):

@@ -25,12 +25,17 @@ var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't re
 #down ability without firing and pre-instantiating abilities
 var activated = true
 
+var stringified_reference = ""
+
 #constructors------------------------------------------------------------------------------------------
 #constructor for ability instantiated platforms
 func Ability(global_positionn, rotationn, stacked):
 	Platform(48, 90, global_positionn + 24 * Vector2(cos(rotationn), sin(rotationn)).normalized(), 0, \
 	60 * Vector2(cos(rotationn), sin(rotationn)).normalized(), true)
 	activated = false
+	
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 #general constructor
 func Platform(x,y,pos,rot,linear_v, breakable):

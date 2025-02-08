@@ -28,7 +28,8 @@ func _ready():
 			#will have animation frame and stuff
 		}
 		
-		get_tree().root.get_node("Main").add_child2(str(self), self)
+		stringified_reference = str(self).substr(str(self).find(":")+1)
+		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 	else:
 		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 

@@ -103,10 +103,12 @@ func update_clients_object_game_state(objects_dataa):
 					object = preload("res://platform.tscn").instantiate()
 					var d = objects_dataa[key]
 					object.Platform(d["x"], d["y"], d["position"], d["rotation"], Vector2(0,0), false)
-				"missle": #don't think this ever runs but it might
-					object = preload("res://missle.tscn").instantiate()
-					var d = objects_dataa[key]
-					object.position = d["position"]
+				"missle": #don't think this ever runs but it might; if it does thats probably bad
+					#object = preload("res://missle.tscn").instantiate()
+					#var d = objects_dataa[key]
+					#object.position = d["position"]
+					print("NOT FOUND HERE:", key)
+					continue
 				"explosion":
 					object = preload("res://explosion.tscn").instantiate()
 					var d = objects_dataa[key]
@@ -138,7 +140,7 @@ func client_delete_objects(objects_to_be_deletedd):
 		if objects.has(o):
 			objects[o].queue_free()
 			objects.erase(o)
-		#objects_data.erase(o) #what is ever added to objects_data on non-hosts?
+			objects_data.erase(o) #what is ever added to objects_data on non-hosts?
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -29,8 +29,8 @@ func _ready():
 			"rotation" : rotation
 			#add animation stuff
 		}
-
-		get_tree().root.get_node("Main").add_child2(str(self), self)
+		stringified_reference = str(self).substr(str(self).find(":")+1)
+		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 	else:
 		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 
@@ -48,7 +48,7 @@ func _process(delta):
 
 func die():
 	#parent is main
-	get_parent().delete_object(str(self), self)
+	get_parent().delete_object(str(self).substr(str(self).find(":")+1), self)
 	queue_free()
 
 func get_data():

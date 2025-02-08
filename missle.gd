@@ -16,8 +16,12 @@ var objects_on_stack_chain = [] #lists objects part of stack chain so doesn't re
 var activated #explained in platform
 
 var missle_data = {}
+var multiplayer_children = {}
+var multiplayer_children_data = {}
+var multiplayer_children_to_be_deleted = []
 
-var stringified_reference = ""
+
+var stringified_reference = "not a really stringified_reference"
 
 func Ability(global_positionn, rotationn, _stacked):
 	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
@@ -58,6 +62,8 @@ func _ready():
 			missle_data["scale"] = scale
 			missle_data["visible"] = visible
 			
+			missle_data["multiplayer_children_data"] = multiplayer_children_data
+			
 			contact_monitor = true
 			max_contacts_reported = 20
 			
@@ -65,9 +71,10 @@ func _ready():
 			$MissleA2D.connect("body_entered", body_entered)
 			$MissleA2D.connect("area_entered", area_entered)
 			age = 0
-			get_parent().add_child2(str(self), self)
-		else:
+			stringified_reference = str(self).substr(str(self).find(":")+1)
 			get_parent().add_child2(stringified_reference, self)
+		else:
+			get_parent().add_child2(stringified_reference, self) #don't think this runs
 		
 		#$AnimationPlayer.play()
 
@@ -127,6 +134,8 @@ func _physics_process(delta):
 		missle_data["rotation"] = rotation
 		missle_data["scale"] = scale
 		missle_data["visible"] = visible
+		
+		missle_data["multiplayer_children_data"] = multiplayer_children_data
 
 func get_data():
 	return missle_data
@@ -142,7 +151,7 @@ func explode():
 	#multiplayer stuff
 	if objects_on_stack_chain.find(self) != -1:
 		objects_on_stack_chain.remove_at(objects_on_stack_chain.find(self))
-	get_tree().root.get_node("Main").delete_object(str(self), self)
+	get_tree().root.get_node("Main").delete_object(str(self).substr(str(self).find(":")+1), self)
 	queue_free()
 		#missle_data["scale"] = scale
 		#free_soon = true
@@ -170,13 +179,18 @@ func stack_ability(ability):
 		stacked_ability[str(ability)] = ability
 	else: #iS_MELEE
 		add_child(ability)
-		stacked_ability[str(ability)] = ability
+		stacked_ability[str(ability)] = ability #not handled by add_child2 ; stacked_ability is for all stacked objects, not just children
 		
 		var count = 0
 		for key in stacked_ability:
 			stacked_ability[key].set_rotation_offset(int((count+1)/2) * PI/4.0 * (-1 * (-2 * (count % 2) + 1))\
 			 - PI/8.0 * ((stacked_ability.size()+1) % 2))
 			count += 1
+
+#for stacked melee abilities
+func add_child2(stringified_referencee, reference):
+	multiplayer_children[stringified_referencee] = reference
+	multiplayer_children_data[stringified_referencee] = reference.get_data()
 
 func showw(): #DW THIS WORKS STACKED_ABILITY != OBJECTS_ON_STACK_CHAIN
 	show()
@@ -191,7 +205,7 @@ func hidee():
 
 #only called by my_ID == 1
 func activate():
-	get_parent().to_reparent(str(self))
+	get_parent().to_reparent(stringified_reference)
 	
 	$CollisionShape2D.disabled = false
 	$MissleA2D/CollisionShape2D.disabled = false
@@ -205,7 +219,7 @@ func activate():
 	var main = get_tree().root.get_node("Main")
 	get_parent().remove_child(self)
 	main.add_child(self) #doesn't call add_child2 in _ready() if parent not Weapon
-	main.add_child2(str(self), self)
+	main.add_child2(stringified_reference, self)
 	global_position = gP
 	rotation = rot
 	
@@ -224,6 +238,11 @@ func get_rotation2():
 #melee stuff---------------------------------------------------------------------
 func lose_ability(stringified_ability):
 	stacked_ability.erase(stringified_ability)
+	
+	multiplayer_children.erase(stringified_ability)
+	multiplayer_children_data.erase(stringified_ability)
+	
+	multiplayer_children_to_be_deleted.append(stringified_ability)
 
 #------------------------------------------------------------------------------------------------
 
@@ -274,3 +293,22 @@ func update_data(missle_dataa):
 				scale = missle_dataa[key]
 			"visible":
 				visible = missle_dataa[key]
+			"multiplayer_children_data":
+				for o in missle_dataa[key]:
+					if not multiplayer_children.has(o):
+						var object
+						match missle_dataa[key][o]["type"]:
+							"laser":
+								object = preload("res://Laser.tscn").instantiate()
+							_:
+								print("type not found in update_data of missle class")
+						object.assign_stringified_reference(o)
+						add_child(object)
+					multiplayer_children[o].update_data(missle_dataa[key][o])
+			"multiplayer_children_to_be_deleted":
+				for i in range(len(missle_dataa[key])):
+					if multiplayer_children.has(missle_dataa[key][i]):
+						multiplayer_children[missle_dataa[key][i]].queue_free()
+						multiplayer_children.erase(missle_dataa[key][i])
+						multiplayer_children_data.erase(missle_dataa[key][i])
+					
