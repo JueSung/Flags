@@ -17,9 +17,16 @@ var activated #explained in platform
 
 var missle_data = {}
 
+var stringified_reference = ""
+
 func Ability(global_positionn, rotationn, _stacked):
 	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
-	
+
+#only for rendering clients to tell object what their corresponding stringified_reference from server name is.
+#called before add_child()
+#important for add_child2()
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -58,7 +65,9 @@ func _ready():
 			$MissleA2D.connect("body_entered", body_entered)
 			$MissleA2D.connect("area_entered", area_entered)
 			age = 0
-			get_parent().add_child2(self)
+			get_parent().add_child2(str(self), self)
+		else:
+			get_parent().add_child2(stringified_reference, self)
 		
 		#$AnimationPlayer.play()
 
@@ -122,13 +131,13 @@ func _physics_process(delta):
 func get_data():
 	return missle_data
 
+#only ran by my_ID == 1
 func explode():
 	#if not free_soon:
-	#scale *= later_scale
 	var explosion = preload("res://explosion.tscn").instantiate()
 	explosion.Explosion(later_scale*scale, global_position)
 	get_tree().root.get_node("Main").call_deferred("add_child", explosion) #add_child
-	get_tree().root.get_node("Main").call_deferred("add_child2", explosion)
+	##get_tree().root.get_node("Main").call_deferred("add_child2", explosion) ##don't think we need this twice
 	
 	#multiplayer stuff
 	if objects_on_stack_chain.find(self) != -1:
@@ -180,6 +189,7 @@ func hidee():
 	for key in stacked_ability:
 		stacked_ability[key].hidee()
 
+#only called by my_ID == 1
 func activate():
 	get_parent().to_reparent(str(self))
 	
@@ -194,8 +204,8 @@ func activate():
 	var rot = get_parent().rotation + rotation
 	var main = get_tree().root.get_node("Main")
 	get_parent().remove_child(self)
-	main.add_child(self)
-	main.add_child2(self)
+	main.add_child(self) #doesn't call add_child2 in _ready() if parent not Weapon
+	main.add_child2(str(self), self)
 	global_position = gP
 	rotation = rot
 	
@@ -247,7 +257,7 @@ func handle_reparent():
 	var main = get_tree().root.get_node("Main")
 	get_parent().remove_child(self)
 	main.add_child(self)
-	main.add_child2(self)
+	main.add_child2(stringified_reference, self) #reparenting _ready() doesn't run
 	global_position = gP
 	rotation = rot
 	

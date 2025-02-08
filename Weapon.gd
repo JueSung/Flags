@@ -338,9 +338,9 @@ func to_reparent(stringified_reference):
 	multiplayer_objects.erase(stringified_reference)
 	objects_to_be_reparented.append(stringified_reference)
 	
-func add_child2(reference):
-	multiplayer_objects[str(reference)] = reference
-	multiplayer_objects_data[str(reference)] = reference.get_data()
+func add_child2(stringified_reference, reference):
+	multiplayer_objects[stringified_reference] = reference
+	multiplayer_objects_data[stringified_reference] = reference.get_data()
 	
 #2 for not overriding node2d's get_rotation() function, necessary because if melee attatched to projectile while
 #child of weapon then they need to return weapon's rotation
@@ -369,8 +369,9 @@ func update_game_state(weapon_dataa):
 							_:
 								print("Weapon tries to instantiate non-existent ability?? Of type", weapon_dataa[key][o]["type"])
 								continue
+						object.assign_stringified_reference(o)
 						add_child(object)
-						multiplayer_objects[o] = object
+						#multiplayer_objects[o] = object #this will be handled by add_child2
 					
 					#runs either way	
 					multiplayer_objects[o].update_data(weapon_dataa[key][o])

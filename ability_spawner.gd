@@ -7,9 +7,14 @@ var ability_types = ["Platform", "Missle", "Laser"]
 
 var data
 
+var stringified_reference = ""
+
 func Ability_Spawner(global_positionn, rotationn):
 	global_position = global_positionn
 	rotation = rotationn # at rot = 0, drop upwards
+
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -23,7 +28,9 @@ func _ready():
 			#will have animation frame and stuff
 		}
 		
-		get_tree().root.get_node("Main").add_child2(self)
+		get_tree().root.get_node("Main").add_child2(str(self), self)
+	else:
+		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):

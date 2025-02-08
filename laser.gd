@@ -24,6 +24,8 @@ var activated #explained in platform
 var objects_touching = [] #objects already touching for when become full, kill those objects immediately bc area/body_entered doesn't trigger
 var laser_data = {}
 
+var stringified_reference = ""
+
 #constructor
 func Ability(global_positionn_but_actually_position_offset, rotationn, stackedd):
 	position_offset = global_positionn_but_actually_position_offset
@@ -33,6 +35,9 @@ func Ability(global_positionn_but_actually_position_offset, rotationn, stackedd)
 	if stacked:
 		age = 2.4
 		life_time += 2.5
+
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -65,7 +70,9 @@ func _ready():
 		
 		position_offset = position_offset - get_parent().global_position
 		
-		get_parent().add_child2(self)
+		get_parent().add_child2(str(self), self)
+	else:
+		get_parent().add_child2(stringified_reference, self)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -6,9 +6,14 @@ var LIFETIME = 1 #number of seconds alive
 
 var data
 
+var stringified_reference = ""
+
 func Explosion(scalee, global_positionn):
 	scale = scalee
 	global_position = global_positionn
+
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,7 +29,9 @@ func _ready():
 			#animation stuff
 		}
 		
-		get_tree().root.get_node("Main").add_child2(self)
+		get_tree().root.get_node("Main").add_child2(str(self), self)
+	else:
+		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

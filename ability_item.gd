@@ -6,6 +6,8 @@ var ability_name : String
 
 var data
 
+var stringified_reference = ""
+
 func AbilityItem(ability_namee, global_positionn):
 	ability_name = ability_namee
 	global_position = global_positionn
@@ -13,7 +15,8 @@ func AbilityItem(ability_namee, global_positionn):
 	#get sprite of ability_name and paste it on friggin circle
 
 
-
+func assign_stringified_reference(stringified_referencee):
+	stringified_reference = stringified_referencee
 
 
 # Called when the node enters the scene tree for the first time.
@@ -27,7 +30,9 @@ func _ready():
 			#add animation stuff
 		}
 
-		get_tree().root.get_node("Main").add_child2(self)
+		get_tree().root.get_node("Main").add_child2(str(self), self)
+	else:
+		get_tree().root.get_node("Main").add_child2(stringified_reference, self)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
