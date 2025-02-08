@@ -1,4 +1,5 @@
 extends Node
+class_name Main
 var my_ID
 var player_datas = {}
 var player_objects = {}
@@ -97,15 +98,20 @@ func update_clients_object_game_state(objects_dataa):
 	for key in objects_dataa:
 		if key not in objects: #then it will "type" key in its object_data, its a new object that needs to be created
 			var object
+			print(objects_dataa[key])
 			match objects_dataa[key]["type"]:
 				"platform":
 					object = preload("res://platform.tscn").instantiate()
 					var d = objects_dataa[key]
 					object.Platform(d["x"], d["y"], d["position"], d["rotation"], Vector2(0,0), false)
-				"missle":
+				"missle": #don't think this ever runs but it might
 					object = preload("res://missle.tscn").instantiate()
 					var d = objects_dataa[key]
 					object.position = d["position"]
+				"explosion":
+					object = preload("res://explosion.tscn").instantiate()
+					var d = objects_dataa[key]
+					object.Explosion(Vector2(3.5,3.5), d["position"])
 				"Ability_Spawner":
 					object = preload("res://Ability_spawner.tscn").instantiate()
 					var d = objects_dataa[key]
@@ -128,8 +134,10 @@ func update_clients_object_game_state(objects_dataa):
 func client_delete_objects(objects_to_be_deletedd):
 	# "o" var is stringified reference name => key in objects & objects_data
 	for o in objects_to_be_deletedd:
-		objects[o].queue_free()
-		objects.erase(o)
+		#another instance of idk what to do after you delete it maybe see how main only instantiated/main deleted works out so well
+		if objects.has(o):
+			objects[o].queue_free()
+			objects.erase(o)
 		#objects_data.erase(o) #what is ever added to objects_data on non-hosts?
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -190,11 +198,14 @@ func _process(_delta):
 		objects_data = {}
 		rpc("client_delete_objects", objects_to_be_deleted) #tell client mains to delete nodes in this map
 		objects_to_be_deleted = []
+		
 
 
 #called by objects in _ready after all_child had been called on them, so they add themselves to main so main can send to clients
 func add_child2(reference):
+	print("ran")
 	objects[str(reference)] = reference
+	objects_data[str(reference)] = reference.get_data()
 	
 
 #handles removing object from main knowledge for multiplayer stuff, but queue_free() handled by object itself

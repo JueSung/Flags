@@ -18,7 +18,8 @@ func _ready():
 		age = 0
 		
 		data = {
-			"global_position" : global_position,
+			"type" : "explosion",
+			"position" : global_position,
 			"rotation" : rotation
 			#animation stuff
 		}
@@ -64,5 +65,5 @@ func body_entered(body):
 func get_data():
 	return data
 func update_data(dataa):
-	global_position = dataa[global_position]
-	rotation = dataa[rotation]
+	global_position = dataa["position"]
+	rotation = dataa["rotation"]

@@ -23,92 +23,101 @@ func Ability(global_positionn, rotationn, _stacked):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	global_position = get_parent().to_local(global_position)
-	$CollisionShape2D.disabled = true
-	$MissleA2D/CollisionShape2D.disabled = true
-	$MissleA2D/RC1.enabled = false
-	$MissleA2D/RC2.enabled = false
-	$MissleA2D/RC3.enabled = false
-	$MissleA2D/RC4.enabled = false
-	hide()
-	activated = false
-	
-	#multiplayer stuff
-	#get_parent().objects[str(self)] = self
-	#get_parent().objects_data[str(self)] = missle_data
-	
-	if get_tree().root.get_node("Main").my_ID == 1:
-		objects_on_stack_chain.append(self)
-		objects_on_stack_chain.append($MissleA2D)
+	if get_parent() is Weapon:
+		global_position = get_parent().to_local(global_position)
+		$CollisionShape2D.disabled = true
+		$MissleA2D/CollisionShape2D.disabled = true
+		$MissleA2D/RC1.enabled = false
+		$MissleA2D/RC2.enabled = false
+		$MissleA2D/RC3.enabled = false
+		$MissleA2D/RC4.enabled = false
+		hide()
+		activated = false
 		
-		raycasts = [$MissleA2D/RC1, $MissleA2D/RC2, $MissleA2D/RC3, $MissleA2D/RC4]
+		#multiplayer stuff
+		#get_parent().objects[str(self)] = self
+		#get_parent().objects_data[str(self)] = missle_data
 		
+		if get_tree().root.get_node("Main").my_ID == 1:
+			objects_on_stack_chain.append(self)
+			objects_on_stack_chain.append($MissleA2D)
+			
+			raycasts = [$MissleA2D/RC1, $MissleA2D/RC2, $MissleA2D/RC3, $MissleA2D/RC4]
+			
+			
+			missle_data["type"] = "missle"
+			missle_data["position"] = position
+			missle_data["rotation"] = rotation
+			missle_data["scale"] = scale
+			missle_data["visible"] = visible
+			
+			contact_monitor = true
+			max_contacts_reported = 20
+			
+			#connect("area_entered", area_entered)
+			$MissleA2D.connect("body_entered", body_entered)
+			$MissleA2D.connect("area_entered", area_entered)
+			age = 0
+			get_parent().add_child2(self)
 		
-		missle_data["type"] = "missle"
-		missle_data["position"] = position
-		
-		contact_monitor = true
-		max_contacts_reported = 20
-		
-		#connect("area_entered", area_entered)
-		$MissleA2D.connect("body_entered", body_entered)
-		$MissleA2D.connect("area_entered", area_entered)
-		age = 0
-	
-	#$AnimationPlayer.play()
+		#$AnimationPlayer.play()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
-	if get_tree().root.get_node("Main").my_ID == 1 and activated:
-		missle_data = {}
+	if get_tree().root.get_node("Main").my_ID == 1:
+		if activated:
 		
-		if free_soon:
-			var temp = Vector2(0,0)
-			var cc = 0
-			for i in range(len(collision_points)):
-				temp += collision_points[i]
-				cc += 1
-			global_position = temp / float(cc)
-			explode()
-		
-		$MissleA2D/RC1.target_position.x = linear_velocity.length() * delta
-		$MissleA2D/RC2.target_position.x = linear_velocity.length() * delta
-		$MissleA2D/RC3.target_position.x = linear_velocity.length() * delta
-		$MissleA2D/RC4.target_position.x = linear_velocity.length() * delta
-		
-		var rot = atan2(linear_velocity.y, linear_velocity.x) - rotation
-		$MissleA2D/RC1.rotation = rot
-		$MissleA2D/RC2.rotation = rot
-		$MissleA2D/RC3.rotation = rot
-		$MissleA2D/RC4.rotation = rot
-		
-		if $MissleA2D/RC1.is_colliding():
-			if not $MissleA2D/RC1.get_collider() in objects_on_stack_chain:
-				free_soon = true
-				collision_points.append($MissleA2D/RC1.get_collision_point())
-		if $MissleA2D/RC2.is_colliding():
-			if not $MissleA2D/RC2.get_collider() in objects_on_stack_chain:
-				free_soon = true
-				collision_points.append($MissleA2D/RC2.get_collision_point())
-		if $MissleA2D/RC3.is_colliding():
-			if not $MissleA2D/RC3.get_collider() in objects_on_stack_chain:
-				free_soon = true
-				collision_points.append($MissleA2D/RC3.get_collision_point())
-		if $MissleA2D/RC4.is_colliding():
-			if not $MissleA2D/RC4.get_collider() in objects_on_stack_chain:
-				free_soon = true
-				collision_points.append($MissleA2D/RC4.get_collision_point())
-		
-		
-		add_constant_central_force(1000000 * Vector2(cos(rotation), sin(rotation)).normalized())
-		#position += velocity * delta
-		age += delta
-		#if free_soon:
-		#	free_count += delta
-		#	if free_count > .04:
-		#		get_parent().delete_object(str(self), self)
+			if free_soon:
+				var temp = Vector2(0,0)
+				var cc = 0
+				for i in range(len(collision_points)):
+					temp += collision_points[i]
+					cc += 1
+				global_position = temp / float(cc)
+				explode()
+			
+			$MissleA2D/RC1.target_position.x = linear_velocity.length() * delta
+			$MissleA2D/RC2.target_position.x = linear_velocity.length() * delta
+			$MissleA2D/RC3.target_position.x = linear_velocity.length() * delta
+			$MissleA2D/RC4.target_position.x = linear_velocity.length() * delta
+			
+			var rot = atan2(linear_velocity.y, linear_velocity.x) - rotation
+			$MissleA2D/RC1.rotation = rot
+			$MissleA2D/RC2.rotation = rot
+			$MissleA2D/RC3.rotation = rot
+			$MissleA2D/RC4.rotation = rot
+			
+			if $MissleA2D/RC1.is_colliding():
+				if not $MissleA2D/RC1.get_collider() in objects_on_stack_chain:
+					free_soon = true
+					collision_points.append($MissleA2D/RC1.get_collision_point())
+			if $MissleA2D/RC2.is_colliding():
+				if not $MissleA2D/RC2.get_collider() in objects_on_stack_chain:
+					free_soon = true
+					collision_points.append($MissleA2D/RC2.get_collision_point())
+			if $MissleA2D/RC3.is_colliding():
+				if not $MissleA2D/RC3.get_collider() in objects_on_stack_chain:
+					free_soon = true
+					collision_points.append($MissleA2D/RC3.get_collision_point())
+			if $MissleA2D/RC4.is_colliding():
+				if not $MissleA2D/RC4.get_collider() in objects_on_stack_chain:
+					free_soon = true
+					collision_points.append($MissleA2D/RC4.get_collision_point())
+			
+			
+			add_constant_central_force(1000000 * Vector2(cos(rotation), sin(rotation)).normalized())
+			#position += velocity * delta
+			age += delta
+			#if free_soon:
+			#	free_count += delta
+			#	if free_count > .04:
+			#		get_parent().delete_object(str(self), self)
 		
 		missle_data["position"] = position
+		missle_data["position"] = position
+		missle_data["rotation"] = rotation
+		missle_data["scale"] = scale
+		missle_data["visible"] = visible
 
 func get_data():
 	return missle_data
@@ -119,11 +128,12 @@ func explode():
 	var explosion = preload("res://explosion.tscn").instantiate()
 	explosion.Explosion(later_scale*scale, global_position)
 	get_tree().root.get_node("Main").call_deferred("add_child", explosion) #add_child
+	get_tree().root.get_node("Main").call_deferred("add_child2", explosion)
 	
 	#multiplayer stuff
-	#get_parent().delete_object(str(self), self)
 	if objects_on_stack_chain.find(self) != -1:
 		objects_on_stack_chain.remove_at(objects_on_stack_chain.find(self))
+	get_tree().root.get_node("Main").delete_object(str(self), self)
 	queue_free()
 		#missle_data["scale"] = scale
 		#free_soon = true
@@ -171,6 +181,8 @@ func hidee():
 		stacked_ability[key].hidee()
 
 func activate():
+	get_parent().to_reparent(str(self))
+	
 	$CollisionShape2D.disabled = false
 	$MissleA2D/CollisionShape2D.disabled = false
 	$MissleA2D/RC1.enabled = true
@@ -183,6 +195,7 @@ func activate():
 	var main = get_tree().root.get_node("Main")
 	get_parent().remove_child(self)
 	main.add_child(self)
+	main.add_child2(self)
 	global_position = gP
 	rotation = rot
 	
@@ -226,12 +239,28 @@ func body_entered(body):
 		explode()
 		body.explode()
 	#laser takes care of missle-laser collision
+
+#for rendering clients when need to reparent to main because now projectile in main
+func handle_reparent():
+	var gP = get_parent().to_global(position)
+	var rot = get_parent().rotation + rotation
+	var main = get_tree().root.get_node("Main")
+	get_parent().remove_child(self)
+	main.add_child(self)
+	main.add_child2(self)
+	global_position = gP
+	rotation = rot
+	
 	
 
 func update_data(missle_dataa):
-	for key in missle_data:
+	for key in missle_dataa:
 		match key:
 			"position":
 				position = missle_dataa[key]
+			"rotation":
+				rotation = missle_dataa[key]
 			"scale":
 				scale = missle_dataa[key]
+			"visible":
+				visible = missle_dataa[key]

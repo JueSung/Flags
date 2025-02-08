@@ -65,6 +65,7 @@ var weapon_data # =  {
 var multiplayer_objects = {}
 var multiplayer_objects_data = {}
 var objects_to_be_deleted = []
+var objects_to_be_reparented = []
 #--------------------------------------------------------------
 
 # Called when the node enters the scene tree for the first time.
@@ -80,7 +81,8 @@ func _ready():
 			"position" : position,
 			"rotation" : rotation,
 			"multiplayer_objects_data" : multiplayer_objects_data,
-			"objects_to_be_deleted" : objects_to_be_deleted
+			"objects_to_be_deleted" : objects_to_be_deleted,
+			"objects_to_be_reparented" : objects_to_be_reparented
 		}
 	
 	MELEE_ABILITIES = get_parent().get_parent().MELEE_ABILITIES
@@ -261,7 +263,6 @@ func _process(delta):
 		pre_pos = position
 		pre_rot = rotation
 
-
 #test---
 func test(which_ability, which_queued_ability):
 	var stacking_next_on = null
@@ -331,6 +332,12 @@ func lose_ability(stringified_reference):
 	#rotational_resistance = 0
 	#weapon_data["objects_to_be_destroyed"] = 1
 	
+#for my_ID == 1 to be called from ability to tell weapon that it needs to send to clients that ability needs to be reparented
+func to_reparent(stringified_reference):
+	multiplayer_objects_data.erase(stringified_reference)
+	multiplayer_objects.erase(stringified_reference)
+	objects_to_be_reparented.append(stringified_reference)
+	
 func add_child2(reference):
 	multiplayer_objects[str(reference)] = reference
 	multiplayer_objects_data[str(reference)] = reference.get_data()
@@ -357,6 +364,8 @@ func update_game_state(weapon_dataa):
 						match weapon_dataa[key][o]["type"]:
 							"laser":
 								object = preload("res://laser.tscn").instantiate()
+							"missle":
+								object = preload("res://missle.tscn").instantiate()
 							_:
 								print("Weapon tries to instantiate non-existent ability?? Of type", weapon_dataa[key][o]["type"])
 								continue
@@ -374,3 +383,11 @@ func update_game_state(weapon_dataa):
 					if multiplayer_objects.has(weapon_dataa[key][i]):
 						multiplayer_objects[weapon_dataa[key][i]].queue_free()
 						multiplayer_objects.erase(weapon_dataa[key][i])
+			#only used for reparenting projectiles to be part of main
+			"objects_to_be_reparented":
+				for i in range(len(weapon_dataa[key])):
+					#the same problem with deleting objects
+					if multiplayer_objects.has(weapon_dataa[key][i]):
+						multiplayer_objects[weapon_dataa[key][i]].handle_reparent()
+						multiplayer_objects.erase(weapon_dataa[key][i])
+					

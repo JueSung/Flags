@@ -9,3 +9,5 @@ res://ability_item.gd
 res://player.gd
 res://main.gd
 res://missle.gd
+res://explosion.gd
+res://explosion.tscn
