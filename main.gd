@@ -181,7 +181,7 @@ func _process(_delta):
 		#get info and update rendering clients with player game states
 		for id in player_objects:
 			#update and send outplayer data game states
-			player_datas[id] = player_objects[id].player_data
+			player_datas[id] = player_objects[id].get_data()
 			var player_data = player_datas[id]
 			rpc("update_clients_player_game_state", id, player_data)
 		for object in objects:

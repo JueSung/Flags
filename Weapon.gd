@@ -339,6 +339,9 @@ func add_child2(reference):
 #child of weapon then they need to return weapon's rotation
 func get_rotation2():
 	return rotation
+	
+#this function is literally just for objects_to_be_deleted, so as soon as the marked objects to be deleted
+#are sent over, they get deleted from the list here so it doesn't get sent again
 
 func update_game_state(weapon_dataa):
 	for key in weapon_dataa:
@@ -350,7 +353,6 @@ func update_game_state(weapon_dataa):
 			"multiplayer_objects_data":
 				for o in weapon_dataa[key]:
 					if not multiplayer_objects.has(o):
-						print(weapon_dataa[key])
 						var object
 						match weapon_dataa[key][o]["type"]:
 							"laser":
@@ -358,14 +360,17 @@ func update_game_state(weapon_dataa):
 							_:
 								print("Weapon tries to instantiate non-existent ability?? Of type", weapon_dataa[key][o]["type"])
 								continue
-						print("Ran")
 						add_child(object)
 						multiplayer_objects[o] = object
 					
-					#runs either way		
+					#runs either way	
 					multiplayer_objects[o].update_data(weapon_dataa[key][o])
 			"objects_to_be_deleted":
 				for i in range(len(weapon_dataa[key])):
-					print(multiplayer_objects)
-					multiplayer_objects[weapon_dataa[key][i]].queue_free()
-					multiplayer_objects.erase(weapon_dataa[key][i])
+					#dunno if there is better way, but objects_to_be_deleted in my_ID 1 server in each player never
+					#gets overrwritten or reset, so the list of all objects that had been deleted just keeps increasing
+					#this may cause problems, only way to fix i can think of is set timer on my_ID 1 and when timer goes off
+					#remove from objects_to_be_deleted
+					if multiplayer_objects.has(weapon_dataa[key][i]):
+						multiplayer_objects[weapon_dataa[key][i]].queue_free()
+						multiplayer_objects.erase(weapon_dataa[key][i])

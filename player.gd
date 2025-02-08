@@ -137,6 +137,8 @@ func die():
 	position = Vector2(60,60)
 
 
+func get_data():
+	return player_data
 
 #ran by clients to render game state
 func update_game_state(player_dataa):

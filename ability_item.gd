@@ -9,7 +9,6 @@ var data
 func AbilityItem(ability_namee, global_positionn):
 	ability_name = ability_namee
 	global_position = global_positionn
-	print(self)
 	
 	#get sprite of ability_name and paste it on friggin circle
 

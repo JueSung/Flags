@@ -48,6 +48,7 @@ func _ready():
 	laser_data["CollisionShape2D_disabled"] = $CollisionShape2D.disabled
 	
 	laser_data["CollisionShape2D_position"] = $CollisionShape2D.position
+	laser_data["rotation"] = rotation
 	laser_data["CollisionShape2D_scale"] = $CollisionShape2D.scale
 	$AnimatedSprite2D1.hide()
 	$AnimatedSprite2D2.hide()
@@ -165,6 +166,7 @@ func _process(delta):
 		laser_data["CollisionShape2D.disabled"] = $CollisionShape2D.disabled
 		
 		laser_data["CollisionShape2D_position"] = $CollisionShape2D.position
+		laser_data["rotation"] = rotation
 		laser_data["CollisionShape2D_scale"] = $CollisionShape2D.scale
 		
 
@@ -250,9 +252,10 @@ func body_exited(body):
 
 func update_data(laser_dataa):
 	position = laser_dataa["position"]
+	rotation = laser_dataa["rotation"]
 	scale = laser_dataa["scale"]
 	$CollisionShape2D.position = laser_dataa["CollisionShape2D_position"]
 	$CollisionShape2D.scale = laser_dataa["CollisionShape2D_scale"]
 	$CollisionShape2D.disabled = laser_dataa["CollisionShape2D_disabled"]
-	laser_data["visible"] = visible
+	visible = laser_dataa["visible"]
 	

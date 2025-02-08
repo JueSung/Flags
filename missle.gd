@@ -17,7 +17,7 @@ var activated #explained in platform
 
 var missle_data = {}
 
-func Ability(global_positionn, rotationn, stacked):
+func Ability(global_positionn, rotationn, _stacked):
 	global_position = global_positionn + 25 * Vector2(cos(rotationn), sin(rotationn)).normalized()
 	
 
