@@ -3,11 +3,3 @@ res://ability_spawner.tscn
 res://missle.tscn
 res://ability_item.tscn
 res://laser.tscn
-res://main.gd
-res://missle.gd
-res://Weapon.gd
-res://laser.gd
-res://ability_spawner.gd
-res://ability_item.gd
-res://explosion.gd
-res://platform.gd
